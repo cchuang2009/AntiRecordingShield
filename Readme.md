@@ -32,7 +32,7 @@
   - 保留原本 Adaptive Masking 架構
 
  # Project, [src]
-   - Apk, [AntiRecordingShield/src/app/build/intermediates/apk/debug/AntiRecordingShield.apk]
+   - Apk, [AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk]
 
  # Test Platform
    - Manjaro, Android Studio, 
