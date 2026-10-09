@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.antirecording.app-mergeDebugResources-19:/values-af/values-af.xml",
+            "map": [
+                {
+                    "source": "/home/cchuang/.gradle/caches/9.6.0/transforms/7c0da230c29b3c0e12be8173dba4b535/transformed/core-1.13.0/res/values-af/values-af.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,153,255,353,451,558,667,787",
+                        "endColumns": "97,101,97,97,106,108,119,100",
+                        "endOffsets": "148,250,348,446,553,662,782,883"
+                    }
+                }
+            ]
+        }
+    ]
+}

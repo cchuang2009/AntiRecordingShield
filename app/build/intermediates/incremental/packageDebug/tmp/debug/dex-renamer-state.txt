@@ -1,0 +1,13 @@
+#Fri Oct 09 10:40:33 CST 2026
+base.0=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+base.1=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+base.2=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeProjectDexDebug/6/classes.dex
+base.3=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/global_synthetics_dex/debug/generateDebugGlobalSynthetics/classes.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=6/classes.dex
+path.3=classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex
+renamed.3=classes4.dex

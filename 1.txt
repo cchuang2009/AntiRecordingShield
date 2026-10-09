@@ -1,0 +1,28 @@
+91:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:9:17 Unresolved reference 'activity'.
+92:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:19:22 Unresolved reference 'ComponentActivity'.
+93:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:33:5 'onCreate' overrides nothing.
+94:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:34:9 Unresolved reference 'ComponentActivity'.
+95:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:34:15 Unresolved reference 'onCreate'.
+96:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:35:13 Unresolved reference 'checkSelfPermission'.
+97:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:36:13 Unresolved reference 'requestPermissions'.
+98:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:42:32 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+99:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:46:18 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+100:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:51:27 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+101:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:58:30 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+102:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:59:36 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+103:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:62:30 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+104:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:63:34 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+105:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:66:29 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+106:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:69:30 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+107:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:70:29 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+108:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:73:28 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+109:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:79:30 Argument type mismatch: actual type is 'MainActivity', but 'Context!' was expected.
+110:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:83:9 Unresolved reference 'setContentView'.
+111:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:87:13 Unresolved reference 'checkSelfPermission'.
+112:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:188:17 Unresolved reference 'runOnUiThread'.
+113:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:251:5 'onDestroy' overrides nothing.
+114:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:253:9 Unresolved reference 'ComponentActivity'.
+115:e: file:///home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/java/com/example/antirecording/MainActivity.kt:253:15 Unresolved reference 'onDestroy'.
+119:* What went wrong:
+164:Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+278:Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
