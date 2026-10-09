@@ -1,8 +1,0 @@
-com.example.antirecording.app-pngs-0 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/generated/res/pngs/debug
-com.example.antirecording.app-resValues-1 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/generated/res/resValues/debug
-com.example.antirecording.app-updated_navigation_xml-2 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/generated/updated_navigation_xml/debug
-com.example.antirecording.app-packageDebugResources-3 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
-com.example.antirecording.app-packageDebugResources-4 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
-com.example.antirecording.app-debug-5 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/merged_res/debug/mergeDebugResources
-com.example.antirecording.app-debug-6 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/debug/res
-com.example.antirecording.app-main-7 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/res
