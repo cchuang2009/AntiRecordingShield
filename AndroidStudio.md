@@ -10,6 +10,6 @@
    - enable top menu
    - [Build] -> [Generate App Bundels or APKs] -> both [Generate APKS] and [Generate Bundles]
    - [Generate Signed App Bundels or APKs], only have this to install, which is [$ProjectHome/app/build/outputs/apk/debug/app-debug.apk]
-3. Open the [Console] from left-buttom menu to install apk to cell phone
+3. Open the [Console] from left-buttom menu to install apk to cell phone<br>
 ``` > adb install -r app/build/outputs/apk/debug/app-debug.apk```
    
