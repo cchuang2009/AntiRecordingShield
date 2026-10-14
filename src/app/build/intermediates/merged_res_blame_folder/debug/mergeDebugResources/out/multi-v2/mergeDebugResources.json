@@ -248,25 +248,6 @@
                     }
                 },
                 {
-                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/res/values/styles.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endLines": "9",
-                        "endColumns": "12",
-                        "endOffsets": "501"
-                    },
-                    "to": {
-                        "startLines": "101",
-                        "startColumns": "4",
-                        "startOffsets": "6137",
-                        "endLines": "108",
-                        "endColumns": "12",
-                        "endOffsets": "6583"
-                    }
-                },
-                {
                     "source": "/home/cchuang/.gradle/caches/8.13/transforms/8b15c65ad8f80ebece13ac87685a8b1f/transformed/lifecycle-runtime-2.6.2/res/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -320,6 +301,25 @@
                     }
                 },
                 {
+                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/res/values/styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "501"
+                    },
+                    "to": {
+                        "startLines": "101",
+                        "startColumns": "4",
+                        "startOffsets": "6137",
+                        "endLines": "108",
+                        "endColumns": "12",
+                        "endOffsets": "6583"
+                    }
+                },
+                {
                     "source": "/home/cchuang/.gradle/caches/8.13/transforms/1fdd0393ce4cb9c27cee0271bdc97a68/transformed/savedstate-1.2.1/res/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -354,7 +354,7 @@
                     }
                 },
                 {
-                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/res/values/colors.xml",
+                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/res/values/colors.xml",
                     "from": {
                         "startLines": "1",
                         "startColumns": "11",

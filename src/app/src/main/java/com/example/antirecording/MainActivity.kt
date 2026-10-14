@@ -16,10 +16,12 @@ import android.view.View
 import android.widget.*
 import android.graphics.Color
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import java.util.Random
 import kotlin.math.*
 
 /**
- * Anti-Recording Shield 0.3.0 — experimental acoustic privacy prototype.
+ * Anti-Recording Shield 0.6.0 — experimental acoustic privacy prototype.
  * Important: microphone analysis cannot determine whether another phone is recording.
  * The score below is an acoustic activity indicator, not a recording-device detector.
  */
@@ -39,10 +41,21 @@ class MainActivity : ComponentActivity() {
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var maskSwitch: Switch
+    private lateinit var modeSpinner: Spinner
+    private lateinit var wavButton: Button
+    private lateinit var modeNote: TextView
+    @Volatile private var mode = 0              // 0 noise, 1 babble, 2 ultrasonic (experimental), 3 custom WAV
+    private var outRate = 48000
+    private val ultraCarrierHz = 27000.0
+    private var wavData: ShortArray? = null     // custom (e.g. adversarial) perturbation, 48 kHz mono 16-bit
+    private var wavRms = 1.0
+    private val pickWav = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) loadWav(uri)
+    }
     private lateinit var alertDetails: TextView
     @Volatile private var alertActive = false
     private var lastAlertAtMs = 0L
-    private val sampleRate = 44100
+    private val sampleRate = 48000
     private val fftSize = 1024
     private val navy = Color.rgb(7, 20, 39)
     private val card = Color.rgb(15, 36, 61)
@@ -85,7 +98,7 @@ class MainActivity : ComponentActivity() {
         header.addView(logo, LinearLayout.LayoutParams(dp(48), dp(48)))
         val titleBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(12), 0, 0, 0) }
         titleBox.addView(label("Anti-Recording Shield", 20f, white, true))
-        titleBox.addView(label("ACOUSTIC PRIVACY  •  v0.4", 10f, cyan, true))
+        titleBox.addView(label("ACOUSTIC PRIVACY  •  v0.7", 10f, cyan, true))
         header.addView(titleBox, LinearLayout.LayoutParams(0, -2, 1f))
         root.addView(header)
         addGap(root, 18)
@@ -134,9 +147,38 @@ class MainActivity : ComponentActivity() {
         control.addView(label("ADAPTIVE MASKING", 12f, muted, true))
         maskSwitch = Switch(this).apply { text = "Enable low-level masking"; textSize = 15f; setTextColor(white); isChecked = true; buttonTintList = android.content.res.ColorStateList.valueOf(cyan); setOnCheckedChangeListener { _, checked -> maskingEnabled = checked } }
         control.addView(maskSwitch)
+        addGap(control, 8)
+        control.addView(label("Masking mode", 13f, white))
+        val modes = arrayOf("1  Speech-shaped noise", "2  Babble (8 synthetic voices)", "3  Ultrasound (experimental; not recommended)", "4  Custom WAV (adversarial)")
+        modeSpinner = Spinner(this).apply {
+            adapter = object : ArrayAdapter<String>(this@MainActivity, android.R.layout.simple_spinner_item, modes) {
+                override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View =
+                    (super.getView(position, convertView, parent) as TextView).apply { setTextColor(white) }
+                override fun getDropDownView(position: Int, convertView: View?, parent: android.view.ViewGroup): View =
+                    (super.getDropDownView(position, convertView, parent) as TextView).apply { setTextColor(white); setBackgroundColor(card); setPadding(dp(12), dp(10), dp(12), dp(10)) }
+            }
+            setPopupBackgroundDrawable(android.graphics.drawable.ColorDrawable(card))
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                    wavButton.visibility = if (pos == 3) View.VISIBLE else View.GONE
+                    modeNote.text = when (pos) {
+                        0 -> "Broadband noise shaped like the long-term speech spectrum (150 Hz–6.5 kHz)."
+                        1 -> "Overlapping synthetic syllables from 8 voices; harder for denoisers to separate than steady noise."
+                        2 -> "Experimental ultrasound output is not a reliable privacy measure. Pixel speakers may not reproduce 27 kHz and most recording microphones will not demodulate it. Do not rely on this mode; audible masking is the testable baseline."
+                        else -> "Plays a looping 48 kHz mono 16-bit WAV (e.g. perturbation from make_adversarial.py). Effective only against the model it was optimised for."
+                    }
+                }
+                override fun onNothingSelected(p: AdapterView<*>?) {}
+            }
+        }
+        control.addView(modeSpinner)
+        wavButton = Button(this).apply { text = "Choose WAV…"; visibility = View.GONE; setOnClickListener { pickWav.launch(arrayOf("audio/*")) } }
+        control.addView(wavButton)
+        modeNote = label("Broadband noise shaped like the long-term speech spectrum (150 Hz–6.5 kHz).", 11f, muted)
+        control.addView(modeNote)
         addGap(control, 6)
-        control.addView(label("Maximum intensity (start low)", 13f, white))
-        intensity = SeekBar(this).apply { max = 30; progress = 6; progressTintList = android.content.res.ColorStateList.valueOf(blue); thumbTintList = android.content.res.ColorStateList.valueOf(cyan) }
+        control.addView(label("Masking level  (-36 … -6 dBFS, start low)", 13f, white))
+        intensity = SeekBar(this).apply { max = 30; progress = 12; progressTintList = android.content.res.ColorStateList.valueOf(blue); thumbTintList = android.content.res.ColorStateList.valueOf(cyan) }
         control.addView(intensity)
         addGap(control, 10)
         val buttons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
@@ -150,8 +192,21 @@ class MainActivity : ComponentActivity() {
         val disclaimer = cardLayout()
         disclaimer.addView(label("PRIVACY & SAFETY NOTE", 12f, cyan, true))
         addGap(disclaimer, 6)
-        disclaimer.addView(label("This app analyzes sound captured by this phone's microphone and can play low-level masking audio. It cannot detect whether a nearby phone is recording, and cannot guarantee prevention of recording or speech recognition. Use only at a comfortable volume and with the consent of people present.", 12f, muted))
+        disclaimer.addView(label("This app analyzes sound captured by this phone's microphone and can play audible masking sound. It cannot confirm whether another phone is recording, detect the recording state from RF/Wi-Fi/Bluetooth, or guarantee prevention of recording or speech recognition. Use at a comfortable volume and with consent.", 12f, muted))
         root.addView(disclaimer)
+        addGap(root, 14)
+        val radioCard = cardLayout()
+        radioCard.addView(label("NEARBY DEVICE AWARENESS", 12f, cyan, true))
+        addGap(radioCard, 6)
+        radioCard.addView(label("RF / Wi-Fi / Bluetooth presence is not proof of recording. Android apps cannot determine whether a nearby device is recording from its radio signals. Use these shortcuts only to inspect ordinary nearby connectivity; unknown devices may be absent and legitimate devices may appear.", 12f, muted))
+        addGap(radioCard, 8)
+        val radioButtons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
+        val wifiButton = Button(this).apply { text = "Wi-Fi settings"; setOnClickListener { try { startActivity(android.content.Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)) } catch (_: Exception) { Toast.makeText(this@MainActivity, "Wi-Fi settings unavailable", Toast.LENGTH_SHORT).show() } } }
+        val btButton = Button(this).apply { text = "Bluetooth settings"; setOnClickListener { try { startActivity(android.content.Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS)) } catch (_: Exception) { Toast.makeText(this@MainActivity, "Bluetooth settings unavailable", Toast.LENGTH_SHORT).show() } } }
+        radioButtons.addView(wifiButton, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(4) })
+        radioButtons.addView(btButton, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
+        radioCard.addView(radioButtons)
+        root.addView(radioCard)
         setContentView(scroll)
     }
 
@@ -163,52 +218,77 @@ class MainActivity : ComponentActivity() {
         val minRec = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
         if (minRec <= 0) { status.text = "●  MICROPHONE UNAVAILABLE"; return }
         val recBuffer = max(minRec, fftSize * 2)
-        recorder = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, recBuffer)
-        val minOut = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
+        recorder = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, recBuffer)
+        mode = modeSpinner.selectedItemPosition
+        if (mode == 3 && wavData == null) { status.text = "●  CHOOSE A WAV FILE FIRST"; return }
+        outRate = if (mode == 2) 96000 else 48000
+        val minOut = AudioTrack.getMinBufferSize(outRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
         if (minOut <= 0) { recorder?.release(); recorder = null; status.text = "●  AUDIO OUTPUT UNAVAILABLE"; return }
-        track = AudioTrack(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build(), AudioFormat.Builder().setSampleRate(sampleRate).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build(), max(minOut, fftSize * 2), AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
+        track = AudioTrack(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build(), AudioFormat.Builder().setSampleRate(outRate).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build(), max(minOut, fftSize * 4), AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
+        if (track?.state != AudioTrack.STATE_INITIALIZED) {
+            recorder?.release(); recorder = null; track?.release(); track = null
+            status.text = if (mode == 2) "●  96 kHz OUTPUT NOT SUPPORTED" else "●  AUDIO OUTPUT UNAVAILABLE"; return
+        }
         try { recorder!!.startRecording(); track!!.play() } catch (e: Exception) {
             status.text = "●  AUDIO START FAILED"; recorder?.release(); recorder = null; track?.release(); track = null; return
         }
         running = true; status.text = "●  MONITORING ACTIVE"; status.setTextColor(cyan)
-        startButton.isEnabled = false; stopButton.isEnabled = true
+        startButton.isEnabled = false; stopButton.isEnabled = true; modeSpinner.isEnabled = false
         worker = Thread {
             Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO)
-            val input = ShortArray(fftSize); val output = ShortArray(fftSize)
+            val input = ShortArray(fftSize); val output = ShortArray(fftSize * outRate / sampleRate)
             val real = DoubleArray(fftSize); val imag = DoubleArray(fftSize)
-            var phase = 0.0; var smoothSpeech = 0.0; var suspiciousFrames = 0; var quietFrames = 0
+            val masker = Masker(outRate)
+            val babble = if (mode == 1) Babble(outRate) else null
+            val ultra = if (mode == 2) UltraGen(outRate, ultraCarrierHz) else null
+            val wav = wavData; var wavIdx = 0
+            var smoothSpeech = 0.0; var suspiciousFrames = 0; var quietFrames = 0
+            var floorDb = Double.NaN          // slowly-tracked noise floor of the 300-3400 Hz band
+            var boostDb = 0.0                 // adaptive extra masking, 0..+6 dB
+            var levelDb = -36.0
             while (running) {
                 val n = recorder?.read(input, 0, input.size, AudioRecord.READ_BLOCKING) ?: 0
                 if (n <= 0) continue
                 for (i in 0 until fftSize) { val x = if (i < n) input[i] / 32768.0 else 0.0; val w = 0.5 - 0.5 * cos(2.0 * PI * i / (fftSize - 1)); real[i] = x * w; imag[i] = 0.0 }
                 fft(real, imag)
-                var speechPower = 0.0; var totalPower = 1e-9; var peakBin = 0; var peakPower = 0.0
+                var voice = 1e-12; var wide = 1e-12; var peakBin = 0; var peakPower = 0.0
                 val bins = IntArray(24)
                 for (k in 1 until fftSize / 2) {
-                    val p = real[k] * real[k] + imag[k] * imag[k]; totalPower += p
+                    val p = real[k] * real[k] + imag[k] * imag[k]
                     val hz = k.toDouble() * sampleRate / fftSize
-                    if (hz in 1000.0..4000.0) speechPower += p
+                    if (hz in 80.0..8000.0) wide += p
+                    if (hz in 300.0..3400.0) voice += p
                     if (hz in 1000.0..6000.0 && p > peakPower) { peakPower = p; peakBin = k }
-                    if (k < fftSize / 2) { val idx = ((ln(k.toDouble() + 1) / ln((fftSize / 2).toDouble())) * bins.size).toInt().coerceIn(0, bins.lastIndex); bins[idx] = max(bins[idx], (10 * ln(p + 1e-10) + 100).toInt().coerceIn(2, 100)) }
+                    val idx = ((ln(k.toDouble() + 1) / ln((fftSize / 2).toDouble())) * bins.size).toInt().coerceIn(0, bins.lastIndex)
+                    bins[idx] = max(bins[idx], ((10 * log10(p + 1e-10) + 20) * 100.0 / 80.0).toInt().coerceIn(2, 100))
                 }
-                val ratio = (speechPower / totalPower).coerceIn(0.0, 1.0)
                 var rms = 0.0
                 for (i in 0 until n.coerceAtMost(input.size)) { val v = input[i] / 32768.0; rms += v * v }
                 rms = sqrt(rms / n.coerceAtLeast(1))
-                smoothSpeech = 0.85 * smoothSpeech + 0.15 * ratio
 
-                // Heuristic only: sustained speech-band energy + sufficient input level.
-                // This detects a speech-like acoustic environment, NOT another device recording.
-                val speechLikeFrame = smoothSpeech >= 0.22 && rms >= 0.012
+                // Voice-band level relative to the tracked floor. A steady masker (or fan, AC) is absorbed
+                // into the floor, so the masker does not trigger itself (no feedback loop).
+                val voiceDb = 10 * log10(voice)
+                val ratio = (voice / wide).coerceIn(0.0, 1.0)
+                floorDb = when {
+                    floorDb.isNaN() -> voiceDb
+                    voiceDb < floorDb -> 0.8 * floorDb + 0.2 * voiceDb   // fall fast
+                    else -> floorDb + 0.02                                // rise ~1 dB/s
+                }
+                val excessDb = voiceDb - floorDb
+                smoothSpeech = 0.85 * smoothSpeech + 0.15 * (excessDb / 20.0).coerceIn(0.0, 1.0)
+
+                // Heuristic only: voice-band burst above floor + voice-like spectral shape + minimum level.
+                val speechLikeFrame = excessDb >= 9.0 && ratio >= 0.45 && rms >= 0.008
                 if (speechLikeFrame) { suspiciousFrames++; quietFrames = 0 }
                 else { suspiciousFrames = max(0, suspiciousFrames - 1); quietFrames++ }
-                val shouldAlert = suspiciousFrames >= 12 && !alertActive &&
+                val shouldAlert = suspiciousFrames >= 40 && !alertActive &&
                     (System.currentTimeMillis() - lastAlertAtMs > 15000L)
                 if (shouldAlert) {
                     alertActive = true
                     lastAlertAtMs = System.currentTimeMillis()
                     runOnUiThread { showSuspiciousRecordingAlert(smoothSpeech) }
-                } else if (alertActive && quietFrames >= 30) {
+                } else if (alertActive && quietFrames >= 100) {
                     alertActive = false
                     runOnUiThread {
                         if (running) {
@@ -219,14 +299,34 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                val adaptive = if (maskingEnabled) (smoothSpeech * (intensity.progress / 30.0)).coerceIn(0.0, 0.12) else 0.0
-                for (i in output.indices) { val hzPhase = 2.0 * PI * 2200.0 / sampleRate; phase += hzPhase; if (phase >= 2 * PI) phase -= 2 * PI; val pseudoNoise = sin(phase * 17.0) * 0.35 + sin(phase * 31.0 + 1.7) * 0.25 + sin(phase * 53.0 + 0.4) * 0.20; output[i] = ((pseudoNoise + sin(phase) * 0.20) * adaptive * Short.MAX_VALUE).toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort() }
+
+                // Masker: continuous speech-shaped broadband noise (NOT gated by detection),
+                // user level + up to +6 dB while voice is present. Hard cap -6 dBFS.
+                val baseDb = -36.0 + intensity.progress
+                val targetBoost = if (speechLikeFrame) 6.0 else 0.0
+                boostDb += if (targetBoost > boostDb) min(1.0, targetBoost - boostDb) else -min(0.2, boostDb - targetBoost)
+                levelDb = (baseDb + boostDb).coerceAtMost(if (mode == 2) -12.0 else -6.0)
+                val amp = if (maskingEnabled) 10.0.pow(levelDb / 20.0) else 0.0
+                for (i in output.indices) {
+                    val sig = when (mode) {
+                        0 -> masker.next()
+                        1 -> babble!!.next() * 0.85 + masker.next() * 0.35
+                        2 -> ultra!!.next()
+                        else -> { val v = wav!![wavIdx] / 32768.0 / wavRms; wavIdx = (wavIdx + 1) % wav.size; v }
+                    }
+                    val s = tanh(sig * amp) * Short.MAX_VALUE
+                    output[i] = s.toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt()).toShort()
+                }
                 track?.write(output, 0, output.size, AudioTrack.WRITE_BLOCKING)
-                val pct = (smoothSpeech * 100).roundToInt().coerceIn(0, 100); val mpct = ((adaptive / 0.12) * 100).roundToInt().coerceIn(0, 100); val peakHz = peakBin * sampleRate / fftSize
+
+                val pct = (smoothSpeech * 100).roundToInt().coerceIn(0, 100)
+                val mpct = if (maskingEnabled) (((levelDb + 36.0) / 30.0) * 100).roundToInt().coerceIn(0, 100) else 0
+                val peakHz = (peakBin * sampleRate / fftSize.toDouble()).roundToInt()
+                val lvl = levelDb.roundToInt()
                 runOnUiThread {
                     speechEnergy.progress = pct
                     maskEnergy.progress = mpct
-                    bandText.text = "Speech band: $pct%     Peak: $peakHz Hz"
+                    bandText.text = "Voice +${excessDb.coerceAtLeast(0.0).roundToInt()} dB over floor     Mask: ${if (maskingEnabled) "$lvl dBFS" else "off"}     Peak: $peakHz Hz"
                     score.text = "Acoustic activity index  $pct%  •  heuristic only"
                     spectrum.setLevels(bins)
                 }
@@ -273,6 +373,7 @@ class MainActivity : ComponentActivity() {
         if (::score.isInitialized) score.text = "Acoustic activity score  —"
         if (::spectrum.isInitialized) spectrum.setLevels(IntArray(24))
         if (::startButton.isInitialized) startButton.isEnabled = true
+        if (::modeSpinner.isInitialized) modeSpinner.isEnabled = true
         if (::stopButton.isInitialized) stopButton.isEnabled = false
     }
 
@@ -284,6 +385,120 @@ class MainActivity : ComponentActivity() {
             while (i < n) { var wr = 1.0; var wi = 0.0; for (k in 0 until len / 2) { val uR = real[i+k]; val uI = imag[i+k]; val vR = real[i+k+len/2]*wr - imag[i+k+len/2]*wi; val vI = real[i+k+len/2]*wi + imag[i+k+len/2]*wr; real[i+k] = uR+vR; imag[i+k] = uI+vI; real[i+k+len/2] = uR-vR; imag[i+k+len/2] = uI-vI; val nr = wr*wLenR-wi*wLenI; wi = wr*wLenI+wi*wLenR; wr = nr }; i += len }; len = len shl 1 }
     }
     override fun onDestroy() { stopShield(); super.onDestroy() }
+
+
+    /**
+     * Speech-shaped broadband noise: white -> pink (Kellet) -> HPF 150 Hz -> LPF 6.5 kHz (RBJ biquads).
+     * Output is normalised to ~unit RMS; multiply by the desired linear gain.
+     * Replaces the old 2.2 kHz "sine stack" whose upper partials aliased into 4 fixed tones.
+     */
+    private class Masker(sr: Int) {
+        private var seed = 0x2545F491L xor System.nanoTime()
+        private var b0 = 0.0; private var b1 = 0.0; private var b2 = 0.0
+        private val hp = Biquad(true, 150.0, sr); private val lp = Biquad(false, 6500.0, sr)
+        private fun white(): Double {
+            seed = seed xor (seed shl 13); seed = seed xor (seed ushr 7); seed = seed xor (seed shl 17)
+            return ((seed ushr 11).toDouble() / (1L shl 53).toDouble()) * 2.0 - 1.0
+        }
+        fun next(): Double {
+            val w = white()
+            b0 = 0.99765 * b0 + w * 0.0990460; b1 = 0.96300 * b1 + w * 0.2965164; b2 = 0.57000 * b2 + w * 1.0526913
+            return lp.process(hp.process(b0 + b1 + b2 + w * 0.1848)) / 1.126
+        }
+    }
+
+    private class Biquad(highPass: Boolean, f0: Double, sr: Int) {
+        private val b0: Double; private val b1: Double; private val b2: Double; private val a1: Double; private val a2: Double
+        private var x1 = 0.0; private var x2 = 0.0; private var y1 = 0.0; private var y2 = 0.0
+        init {
+            val w0 = 2.0 * PI * f0 / sr; val c = cos(w0); val al = sin(w0) / (2.0 * 0.7071); val a0 = 1.0 + al
+            if (highPass) { b0 = (1 + c) / 2 / a0; b1 = -(1 + c) / a0; b2 = b0 } else { b0 = (1 - c) / 2 / a0; b1 = (1 - c) / a0; b2 = b0 }
+            a1 = -2.0 * c / a0; a2 = (1.0 - al) / a0
+        }
+        fun process(x: Double): Double {
+            val y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+            x2 = x1; x1 = x; y2 = y1; y1 = y; return y
+        }
+    }
+
+    private fun loadWav(uri: android.net.Uri) {
+        try {
+            val b = contentResolver.openInputStream(uri)!!.use { it.readBytes() }
+            fun u16(o: Int) = (b[o].toInt() and 0xFF) or ((b[o + 1].toInt() and 0xFF) shl 8)
+            fun u32(o: Int) = u16(o) or (u16(o + 2) shl 16)
+            require(b.size > 44 && String(b, 0, 4) == "RIFF" && String(b, 8, 4) == "WAVE") { "Not a WAV file" }
+            var o = 12; var ch = 0; var sr = 0; var bits = 0; var fmt = 0; var dataOff = -1; var dataLen = 0
+            while (o + 8 <= b.size) {
+                val id = String(b, o, 4); val len = u32(o + 4)
+                if (id == "fmt ") { fmt = u16(o + 8); ch = u16(o + 10); sr = u32(o + 12); bits = u16(o + 22) }
+                if (id == "data") { dataOff = o + 8; dataLen = min(len, b.size - dataOff); break }
+                o += 8 + len + (len and 1)
+            }
+            require(fmt == 1 && ch == 1 && bits == 16 && sr == 48000 && dataOff > 0) { "Need 48 kHz mono 16-bit PCM WAV" }
+            val n = dataLen / 2
+            val s = ShortArray(n) { i -> u16(dataOff + 2 * i).toShort() }
+            var ms = 0.0; for (v in s) { val x = v / 32768.0; ms += x * x }
+            wavRms = sqrt(ms / n).coerceAtLeast(1e-4); wavData = s
+            Toast.makeText(this, "WAV loaded: ${n / 48000.0} s", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            wavData = null
+            Toast.makeText(this, e.message ?: "Cannot read WAV", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** Running-RMS normaliser so generators have ~unit RMS regardless of sample rate. */
+    private class Agc { private var ms = 0.05; fun norm(x: Double): Double { ms += 1e-4 * (x * x - ms); return x / sqrt(ms + 1e-9) } }
+
+    private class Resonator(private val sr: Int) {
+        private var a1 = 0.0; private var a2 = 0.0; private var g = 1.0; private var y1 = 0.0; private var y2 = 0.0
+        fun set(fc: Double, bw: Double) { val r = exp(-PI * bw / sr); a1 = 2 * r * cos(2 * PI * fc / sr); a2 = -r * r; g = 1 - r }
+        fun process(x: Double): Double { val y = g * x + a1 * y1 + a2 * y2; y2 = y1; y1 = y; return y }
+    }
+
+    /** One synthetic talker: pulse-train source + 3 parallel formants, random vowels, syllabic envelope. */
+    private class BabbleVoice(private val sr: Int, private val rnd: Random) {
+        private val vowels = arrayOf(doubleArrayOf(730.0, 1090.0, 2440.0), doubleArrayOf(270.0, 2290.0, 3010.0), doubleArrayOf(300.0, 870.0, 2240.0), doubleArrayOf(530.0, 1840.0, 2480.0), doubleArrayOf(570.0, 840.0, 2410.0))
+        private val bw = doubleArrayOf(90.0, 110.0, 140.0); private val wt = doubleArrayOf(1.0, 0.8, 0.6)
+        private val res = Array(3) { Resonator(sr) }
+        private val f0 = 90.0 + rnd.nextDouble() * 160.0
+        private var phase = 0.0; private var vib = rnd.nextDouble() * 6.28
+        private var seg = 0; private var pos = 0; private var gap = 0
+        fun next(): Double {
+            if (pos >= seg + gap) {
+                seg = (sr * (0.12 + 0.10 * rnd.nextDouble())).toInt(); pos = 0
+                gap = if (rnd.nextDouble() < 0.35) (sr * 0.12 * rnd.nextDouble()).toInt() else 0
+                val v = vowels[rnd.nextInt(vowels.size)]; for (k in 0 until 3) res[k].set(v[k], bw[k])
+            }
+            val inSeg = pos < seg
+            vib += 2 * PI * 5.0 / sr
+            phase += f0 * (1 + 0.05 * sin(vib)) / sr
+            var pulse = 0.0; if (phase >= 1.0) { phase -= 1.0; pulse = 1.0 }
+            val src = pulse + 0.03 * (rnd.nextDouble() * 2 - 1)
+            var y = 0.0; for (k in 0 until 3) y += wt[k] * res[k].process(src)
+            val env = if (inSeg) { val s = sin(PI * pos / seg); s * s } else 0.0
+            pos++
+            return y * env
+        }
+    }
+
+    private class Babble(sr: Int) {
+        private val rnd = Random(System.nanoTime())
+        private val voices = Array(8) { BabbleVoice(sr, rnd) }
+        private val agc = Agc()
+        init { repeat(sr / 2) { var s = 0.0; for (v in voices) s += v.next(); agc.norm(s) } }  // warm up AGC
+        fun next(): Double { var s = 0.0; for (v in voices) s += v.next(); return agc.norm(s) }
+    }
+
+    /** AM carrier (inaudible) modulated by speech-shaped noise; microphone non-linearity may demodulate it to baseband. */
+    private class UltraGen(sr: Int, private val fc: Double) {
+        private val noise = Masker(sr); private val agc = Agc(); private val w = 2 * PI * fc / sr; private var ph = 0.0
+        init { repeat(sr / 2) { agc.norm(noise.next()) } }
+        fun next(): Double {
+            ph += w; if (ph > 2 * PI) ph -= 2 * PI
+            val m = (0.5 * agc.norm(noise.next())).coerceIn(-0.9, 0.9)
+            return sin(ph) * (1.0 + m) / 1.9
+        }
+    }
 
     private inner class SpectrumView : View(this@MainActivity) {
         private val bars = IntArray(24) { 8 }

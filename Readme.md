@@ -34,7 +34,15 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
   - Adaptive Masking,  保留原本 Adaptive Masking 架構
   - UI added
 
+- 0.7
+  Add some options
+  - Speech-shaped noise, 物理隔離
+  - Babble Simulation, 加上多人交談聲
+  - UltraSound, 超音波干擾
+  - Adversarial WAV, 對抗式擾動 
+
  # Project, [src]
+   - [AndroidStudio.md](AndroidStudio.md), use/install Cell phone to test
    - Apk, [AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk]
 
  # Test Platform

@@ -1,7 +1,7 @@
-#Mon Oct 12 09:10:00 CST 2026
-base.0=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
-base.1=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
-base.2=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/dex/debug/mergeProjectDexDebug/6/classes.dex
+#Wed Oct 14 11:13:22 CST 2026
+base.0=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+base.1=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+base.2=/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/dex/debug/mergeProjectDexDebug/6/classes.dex
 path.0=classes.dex
 path.1=0/classes.dex
 path.2=6/classes.dex

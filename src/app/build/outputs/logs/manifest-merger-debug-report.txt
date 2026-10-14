@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:2:1-20:12
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:2:1-20:12
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:2:1-20:12
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:2:1-20:12
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:2:1-20:12
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:2:1-20:12
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:2:1-20:12
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:2:1-20:12
 MERGED from [androidx.activity:activity-ktx:1.10.1] /home/cchuang/.gradle/caches/8.13/transforms/ca53bb9ee5c14eab7b77448a2375c1d8/transformed/activity-ktx-1.10.1/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.activity:activity:1.10.1] /home/cchuang/.gradle/caches/8.13/transforms/02ace549343ea4add310e961e0cf209f/transformed/activity-1.10.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.core:core-ktx:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/476a6eeb31074b2410f1f4d81c694a73/transformed/core-ktx-1.13.0/AndroidManifest.xml:2:1-7:12
@@ -25,28 +25,28 @@ MERGED from [androidx.interpolator:interpolator:1.0.0] /home/cchuang/.gradle/cac
 MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/cchuang/.gradle/caches/8.13/transforms/437da8ccffe7037a17fecf7210e0e566/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/02dc69a440ffcb1ef5d6920f186ed386/transformed/annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
 	package
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 	android:versionName
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 	android:versionCode
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 	xmlns:android
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:2:11-69
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:2:11-69
 uses-permission#android.permission.RECORD_AUDIO
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:3:5-71
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:3:5-71
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:3:22-68
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:3:22-68
 uses-permission#android.permission.MODIFY_AUDIO_SETTINGS
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:4:5-80
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:4:5-80
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:4:22-77
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:4:22-77
 uses-permission#android.permission.VIBRATE
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:5:5-66
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:5:5-66
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:5:22-63
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:5:22-63
 application
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:6:5-19:19
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:6:5-19:19
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:6:5-19:19
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:6:5-19:19
 MERGED from [androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:28:5-89
 MERGED from [androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:28:5-89
 MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:23:5-53:19
@@ -56,43 +56,43 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /home/cchuang/.gradle/cache
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/cchuang/.gradle/caches/8.13/transforms/e0dcc40493f7a1dab98e2b5c7293bbf6/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/cchuang/.gradle/caches/8.13/transforms/e0dcc40493f7a1dab98e2b5c7293bbf6/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
 	android:extractNativeLibs
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:11:9-35
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:11:9-35
 	android:label
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:10:9-46
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:10:9-46
 	android:roundIcon
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:9:9-54
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:9:9-54
 	android:icon
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:8:9-43
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:8:9-43
 	android:allowBackup
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:7:9-36
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:7:9-36
 	android:theme
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:12:9-40
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:12:9-40
 activity#com.example.antirecording.MainActivity
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:13:9-18:20
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:9-18:20
 	android:screenOrientation
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:13:48-84
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:48-84
 	android:exported
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:13:85-108
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:85-108
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:13:19-47
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:19-47
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:14:13-17:29
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:14:13-17:29
 action#android.intent.action.MAIN
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:15:17-69
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:15:17-69
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:15:25-66
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:15:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:16:17-77
+ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:16:17-77
 	android:name
-		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml:16:27-74
+		ADDED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:16:27-74
 uses-sdk
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
-INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
+INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 MERGED from [androidx.activity:activity-ktx:1.10.1] /home/cchuang/.gradle/caches/8.13/transforms/ca53bb9ee5c14eab7b77448a2375c1d8/transformed/activity-ktx-1.10.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.activity:activity-ktx:1.10.1] /home/cchuang/.gradle/caches/8.13/transforms/ca53bb9ee5c14eab7b77448a2375c1d8/transformed/activity-ktx-1.10.1/AndroidManifest.xml:5:5-44
 MERGED from [androidx.activity:activity:1.10.1] /home/cchuang/.gradle/caches/8.13/transforms/02ace549343ea4add310e961e0cf209f/transformed/activity-1.10.1/AndroidManifest.xml:20:5-44
@@ -134,9 +134,9 @@ MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/cchuang/.gradle/caches
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/02dc69a440ffcb1ef5d6920f186ed386/transformed/annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/02dc69a440ffcb1ef5d6920f186ed386/transformed/annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
 	android:targetSdkVersion
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/AndroidManifest.xml
+		INJECTED from /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml
 permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:22:5-24:47
 	android:protectionLevel

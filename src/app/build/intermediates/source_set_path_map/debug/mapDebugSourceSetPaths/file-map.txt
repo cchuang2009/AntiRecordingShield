@@ -15,10 +15,10 @@ com.example.antirecording.app-lifecycle-runtime-2.6.2-13 /home/cchuang/.gradle/c
 com.example.antirecording.app-core-1.13.0-14 /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/res
 com.example.antirecording.app-activity-ktx-1.10.1-15 /home/cchuang/.gradle/caches/8.13/transforms/ca53bb9ee5c14eab7b77448a2375c1d8/transformed/activity-ktx-1.10.1/res
 com.example.antirecording.app-startup-runtime-1.1.1-16 /home/cchuang/.gradle/caches/8.13/transforms/f9b2f1159b75f2e311d06b0bd5abf306/transformed/startup-runtime-1.1.1/res
-com.example.antirecording.app-pngs-17 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/generated/res/pngs/debug
-com.example.antirecording.app-resValues-18 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/generated/res/resValues/debug
-com.example.antirecording.app-packageDebugResources-19 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
-com.example.antirecording.app-packageDebugResources-20 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
-com.example.antirecording.app-debug-21 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/build/intermediates/merged_res/debug/mergeDebugResources
-com.example.antirecording.app-debug-22 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/debug/res
-com.example.antirecording.app-main-23 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.3/app/src/main/res
+com.example.antirecording.app-pngs-17 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/generated/res/pngs/debug
+com.example.antirecording.app-resValues-18 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/generated/res/resValues/debug
+com.example.antirecording.app-packageDebugResources-19 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.example.antirecording.app-packageDebugResources-20 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.example.antirecording.app-debug-21 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.example.antirecording.app-debug-22 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/debug/res
+com.example.antirecording.app-main-23 /home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/res
