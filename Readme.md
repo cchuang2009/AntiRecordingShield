@@ -4,7 +4,7 @@
 
 Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄音與 AI 語音辨識的有效性。
 
-# versions (last 0.3)
+# versions (last 0.7)
 - 0.1
   - Kotlin / Android Studio project 專案
   - START / STOP (Shielding) button,  反錄音聲學遮蔽
