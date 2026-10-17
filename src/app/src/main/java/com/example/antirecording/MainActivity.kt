@@ -6,6 +6,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.media.*
+import android.net.wifi.WifiManager
+import android.bluetooth.BluetoothAdapter
+import android.os.Build
+import org.json.JSONArray
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -21,7 +29,7 @@ import java.util.Random
 import kotlin.math.*
 
 /**
- * Anti-Recording Shield 0.6.0 — experimental acoustic privacy prototype.
+ * Anti-Recording Shield 1.1 — acoustic masking + local privacy environment notebook.
  * Important: microphone analysis cannot determine whether another phone is recording.
  * The score below is an acoustic activity indicator, not a recording-device detector.
  */
@@ -64,6 +72,26 @@ class MainActivity : ComponentActivity() {
     private val white = Color.rgb(241, 247, 255)
     private val muted = Color.rgb(164, 187, 212)
 
+    // Local-only environment notebook. Data stays in this app's private SharedPreferences.
+    private val prefs by lazy { getSharedPreferences("privacy_environment_v11", MODE_PRIVATE) }
+    private val historyItems = mutableListOf<String>()
+    private val currentSnapshot = mutableListOf<String>()
+    private lateinit var deviceOutput: TextView
+    private lateinit var historyOutput: TextView
+    private lateinit var historySearch: EditText
+    private lateinit var deviceNameInput: EditText
+    private lateinit var deviceLabelInput: EditText
+    private lateinit var deviceIdInput: EditText
+    private lateinit var snapshotSummary: TextView
+    private val exportCsv = registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) try {
+            val csv = buildCsv()
+            contentResolver.openOutputStream(uri)?.bufferedWriter(Charsets.UTF_8)?.use { it.write(csv) }
+            Toast.makeText(this, "CSV exported", Toast.LENGTH_SHORT).show()
+            addHistory("EXPORT", "CSV export completed")
+        } catch (e: Exception) { Toast.makeText(this, "CSV export failed: ${e.message}", Toast.LENGTH_LONG).show() }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.statusBarColor = navy
@@ -98,7 +126,7 @@ class MainActivity : ComponentActivity() {
         header.addView(logo, LinearLayout.LayoutParams(dp(48), dp(48)))
         val titleBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(12), 0, 0, 0) }
         titleBox.addView(label("Anti-Recording Shield", 20f, white, true))
-        titleBox.addView(label("ACOUSTIC PRIVACY  •  v0.7", 10f, cyan, true))
+        titleBox.addView(label("ACOUSTIC PRIVACY  •  v1.1", 10f, cyan, true))
         header.addView(titleBox, LinearLayout.LayoutParams(0, -2, 1f))
         root.addView(header)
         addGap(root, 18)
@@ -207,11 +235,249 @@ class MainActivity : ComponentActivity() {
         radioButtons.addView(btButton, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
         radioCard.addView(radioButtons)
         root.addView(radioCard)
+        addGap(root, 14)
+        buildEnvironmentNotebook(root)
+        buildDeviceTestChecklist(root)
         setContentView(scroll)
+        loadHistory()
+        refreshHistory()
+        refreshKnownDevices()
+    }
+
+    private fun buildEnvironmentNotebook(root: LinearLayout) {
+        val notebook = cardLayout()
+        notebook.addView(label("DEVICE AWARENESS & LOCAL RECORDS", 12f, cyan, true))
+        addGap(notebook, 6)
+        notebook.addView(label("Scan visibility depends on Android version, permissions, Wi-Fi settings and device discoverability. Unknown devices are not proof of recording.", 11f, muted))
+        addGap(notebook, 8)
+        val scanButtons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        scanButtons.addView(Button(this).apply { text = "Scan Wi-Fi"; setOnClickListener { scanWifiNetworks() } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(4) })
+        scanButtons.addView(Button(this).apply { text = "Paired Bluetooth"; setOnClickListener { showPairedBluetooth() } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
+        notebook.addView(scanButtons)
+        deviceOutput = label("No scan performed in this session.", 12f, white)
+        notebook.addView(deviceOutput)
+        addGap(notebook, 6)
+        val snapButtons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        snapButtons.addView(Button(this).apply { text = "Save snapshot"; setOnClickListener { saveSnapshot() } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(4) })
+        snapButtons.addView(Button(this).apply { text = "Compare snapshots"; setOnClickListener { compareSnapshots() } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
+        notebook.addView(snapButtons)
+        snapshotSummary = label("Snapshots: ${prefs.getInt("snapshot_count", 0)}", 11f, muted)
+        notebook.addView(snapshotSummary)
+        addGap(notebook, 10)
+        notebook.addView(label("KNOWN DEVICE LABELS", 12f, muted, true))
+        deviceIdInput = EditText(this).apply { hint = "Device ID / BSSID / Bluetooth address"; setSingleLine(true); setTextColor(white); setHintTextColor(muted) }
+        deviceNameInput = EditText(this).apply { hint = "Device name (e.g. living-room TV)"; setSingleLine(true); setTextColor(white); setHintTextColor(muted) }
+        deviceLabelInput = EditText(this).apply { hint = "Label (Router / TV / Laptop / known)"; setSingleLine(true); setTextColor(white); setHintTextColor(muted) }
+        notebook.addView(deviceIdInput); notebook.addView(deviceNameInput); notebook.addView(deviceLabelInput)
+        notebook.addView(Button(this).apply { text = "Save / update known device"; setOnClickListener { saveDeviceLabel() } })
+        val knownText = label("Known devices are local notes only; labels do not certify a device is safe.", 11f, muted)
+        notebook.addView(knownText)
+        val knownOutput = label("", 11f, white)
+        notebook.addView(knownOutput)
+        // Keep the known-device list on the card and refresh it after edits.
+        knownDevicesView = knownOutput
+        addGap(notebook, 10)
+        notebook.addView(label("EVENT HISTORY", 12f, muted, true))
+        historySearch = EditText(this).apply { hint = "Search history (e.g. WIFI, AUDIO, device name)"; setSingleLine(true); setTextColor(white); setHintTextColor(muted) }
+        notebook.addView(historySearch)
+        notebook.addView(Button(this).apply { text = "Search history"; setOnClickListener { refreshHistory() } })
+        historyOutput = label("No saved events yet.", 11f, white)
+        notebook.addView(historyOutput)
+        val historyButtons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        historyButtons.addView(Button(this).apply { text = "Export CSV"; setOnClickListener { exportCsv.launch("anti_recording_shield_history.csv") } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(4) })
+        historyButtons.addView(Button(this).apply { text = "Clear history"; setOnClickListener { confirmClearHistory() } }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
+        notebook.addView(historyButtons)
+        root.addView(notebook)
+    }
+
+    private fun buildDeviceTestChecklist(root: LinearLayout) {
+        val testCard = cardLayout()
+        testCard.addView(label("PIXEL 6a / REAL-DEVICE TEST LOG", 12f, cyan, true))
+        addGap(testCard, 6)
+        testCard.addView(label("Run these checks on the actual phone. Each button records a manual test result; it does not automatically verify the hardware.", 11f, muted))
+        val tests = listOf(
+            "Microphone input + audible masking output" to "TEST_AUDIO",
+            "Wi-Fi scan permissions and results" to "TEST_WIFI",
+            "Bluetooth paired-device access" to "TEST_BLUETOOTH",
+            "Save snapshot, search history and export CSV" to "TEST_DATA"
+        )
+        tests.forEach { (description, key) ->
+            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+            row.addView(label(description, 12f, white), LinearLayout.LayoutParams(0, -2, 1f))
+            row.addView(Button(this).apply { text = "PASS"; setOnClickListener { addHistory(key, "PASS — $description (manual user confirmation)"); Toast.makeText(this@MainActivity, "Pass recorded", Toast.LENGTH_SHORT).show() } })
+            row.addView(Button(this).apply { text = "ISSUE"; setOnClickListener { addHistory(key, "ISSUE — $description (manual user report)"); Toast.makeText(this@MainActivity, "Issue recorded", Toast.LENGTH_SHORT).show() } })
+            testCard.addView(row)
+        }
+        root.addView(testCard)
+    }
+
+    private lateinit var knownDevicesView: TextView
+
+    private fun nowStamp(): String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
+
+    private fun loadHistory() {
+        historyItems.clear()
+        val a = try { JSONArray(prefs.getString("history", "[]")) } catch (_: Exception) { JSONArray() }
+        for (i in 0 until a.length()) historyItems.add(a.optString(i))
+    }
+
+    private fun persistHistory() {
+        val a = JSONArray()
+        historyItems.takeLast(500).forEach { a.put(it) }
+        prefs.edit().putString("history", a.toString()).apply()
+    }
+
+    private fun addHistory(type: String, detail: String) {
+        val line = "${nowStamp()} | ${type.replace('|','/')} | ${detail.replace('\n',' ').replace('|','/')}"
+        historyItems.add(line)
+        while (historyItems.size > 500) historyItems.removeAt(0)
+        persistHistory()
+        if (::historyOutput.isInitialized) refreshHistory()
+    }
+
+    private fun refreshHistory() {
+        if (!::historyOutput.isInitialized) return
+        val q = if (::historySearch.isInitialized) historySearch.text.toString().trim().lowercase(Locale.ROOT) else ""
+        val filtered = historyItems.asReversed().filter { q.isBlank() || it.lowercase(Locale.ROOT).contains(q) }.take(80)
+        historyOutput.text = if (filtered.isEmpty()) "No matching events." else filtered.joinToString("\n")
+    }
+
+    private fun scanWifiNetworks() {
+        currentSnapshot.clear()
+        try {
+            val wm = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+            val enabled = wm.isWifiEnabled
+            currentSnapshot.add("WIFI_STATE|${if (enabled) "enabled" else "disabled"}")
+            if (!enabled) {
+                deviceOutput.text = "Wi-Fi is disabled. Enable it in Android settings, then scan again."
+                addHistory("WIFI", "Wi-Fi disabled")
+                return
+            }
+            @Suppress("DEPRECATION")
+            val started = try { wm.startScan() } catch (_: SecurityException) { false }
+            @Suppress("DEPRECATION")
+            val results = wm.scanResults
+            if (results.isNullOrEmpty()) {
+                deviceOutput.text = "No Wi-Fi scan results available. Android may require location/nearby Wi-Fi permissions, Location services, or a fresh scan. This is not evidence that no devices are present."
+                addHistory("WIFI", "Scan returned no results; startScan=$started")
+                return
+            }
+            results.forEach { r ->
+                val row = "WIFI|${r.SSID.ifBlank { "<hidden SSID>" }}|${r.BSSID ?: "unknown"}|${r.frequency}MHz|RSSI ${r.level}dBm"
+                currentSnapshot.add(row)
+            }
+            deviceOutput.text = "Visible Wi-Fi networks: ${results.size}\n" + results.take(30).joinToString("\n") { "• ${it.SSID.ifBlank { "<hidden>" }}  ${it.BSSID ?: ""}  ${it.level} dBm  ${it.frequency} MHz" }
+            addHistory("WIFI_SCAN", "${results.size} visible networks; startScan=$started")
+        } catch (e: SecurityException) {
+            deviceOutput.text = "Wi-Fi scan permission unavailable. This source file alone cannot add manifest permissions; grant the required permissions in the project manifest and Android settings."
+            addHistory("WIFI_ERROR", "Permission unavailable")
+        } catch (e: Exception) {
+            deviceOutput.text = "Wi-Fi scan unavailable: ${e.message ?: e.javaClass.simpleName}"
+            addHistory("WIFI_ERROR", e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    private fun showPairedBluetooth() {
+        currentSnapshot.clear()
+        try {
+            val adapter = BluetoothAdapter.getDefaultAdapter()
+            if (adapter == null) { deviceOutput.text = "Bluetooth is not supported on this device."; addHistory("BT", "Not supported"); return }
+            if (!adapter.isEnabled) { deviceOutput.text = "Bluetooth is disabled. Enable it in Android settings, then try again."; addHistory("BT", "Bluetooth disabled"); return }
+            val bonded = adapter.bondedDevices ?: emptySet()
+            if (bonded.isEmpty()) {
+                deviceOutput.text = "No paired Bluetooth devices are available to this app. This list is paired devices only, not a scan of every nearby device."
+                addHistory("BT_SCAN", "0 paired devices")
+                return
+            }
+            bonded.forEach { d -> currentSnapshot.add("BT_PAIRED|${d.name ?: "Unknown"}|${d.address}") }
+            deviceOutput.text = "Paired Bluetooth devices: ${bonded.size}\n" + bonded.joinToString("\n") { "• ${it.name ?: "Unknown"}  ${it.address}" } + "\n\nNote: paired devices are not the same as all nearby devices."
+            addHistory("BT_SCAN", "${bonded.size} paired devices listed")
+        } catch (e: SecurityException) {
+            deviceOutput.text = "Bluetooth permission unavailable. This source file alone cannot add BLUETOOTH_CONNECT permission to AndroidManifest.xml."
+            addHistory("BT_ERROR", "Permission unavailable")
+        } catch (e: Exception) {
+            deviceOutput.text = "Bluetooth listing unavailable: ${e.message ?: e.javaClass.simpleName}"
+            addHistory("BT_ERROR", e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    private fun saveSnapshot() {
+        if (currentSnapshot.isEmpty()) { Toast.makeText(this, "Run a Wi-Fi or Bluetooth check first", Toast.LENGTH_SHORT).show(); return }
+        val snapshots = try { JSONArray(prefs.getString("snapshots", "[]")) } catch (_: Exception) { JSONArray() }
+        snapshots.put(JSONObject().put("time", nowStamp()).put("items", JSONArray(currentSnapshot)))
+        val trimmed = JSONArray()
+        val from = (snapshots.length() - 30).coerceAtLeast(0)
+        for (i in from until snapshots.length()) trimmed.put(snapshots.get(i))
+        prefs.edit().putString("snapshots", trimmed.toString()).apply()
+        snapshotCountRefresh(trimmed.length())
+        addHistory("SNAPSHOT", "Saved snapshot with ${currentSnapshot.size} entries")
+        Toast.makeText(this, "Snapshot saved", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun snapshotCountRefresh(n: Int) {
+        prefs.edit().putInt("snapshot_count", n).apply()
+        if (::snapshotSummary.isInitialized) snapshotSummary.text = "Snapshots saved: $n (maximum 30)"
+    }
+
+    private fun compareSnapshots() {
+        val a = try { JSONArray(prefs.getString("snapshots", "[]")) } catch (_: Exception) { JSONArray() }
+        if (a.length() < 2) { snapshotSummary.text = "Save at least two snapshots to compare."; return }
+        val old = a.getJSONObject(a.length() - 2)
+        val newer = a.getJSONObject(a.length() - 1)
+        val oldSet = (0 until old.getJSONArray("items").length()).map { old.getJSONArray("items").getString(it) }.toSet()
+        val newSet = (0 until newer.getJSONArray("items").length()).map { newer.getJSONArray("items").getString(it) }.toSet()
+        val added = newSet - oldSet
+        val removed = oldSet - newSet
+        snapshotSummary.text = "Compared ${old.optString("time")} → ${newer.optString("time")}\nNew entries: ${added.size}; no longer visible: ${removed.size}\n" + (if (added.isEmpty()) "No new entries." else "New:\n" + added.take(15).joinToString("\n")) + (if (removed.isEmpty()) "\nNo entries disappeared." else "\nNo longer visible:\n" + removed.take(15).joinToString("\n")) + "\nChanges may reflect normal radio/network conditions; not proof of a threat."
+        addHistory("COMPARE", "${added.size} new; ${removed.size} no longer visible")
+    }
+
+    private fun saveDeviceLabel() {
+        val id = deviceIdInput.text.toString().trim()
+        val name = deviceNameInput.text.toString().trim()
+        val tag = deviceLabelInput.text.toString().trim()
+        if (id.isBlank() || (name.isBlank() && tag.isBlank())) { Toast.makeText(this, "Enter a device ID and a name or label", Toast.LENGTH_SHORT).show(); return }
+        val labels = try { JSONObject(prefs.getString("device_labels", "{}")) } catch (_: Exception) { JSONObject() }
+        labels.put(id, JSONObject().put("name", name).put("label", tag).put("updated", nowStamp()))
+        prefs.edit().putString("device_labels", labels.toString()).apply()
+        deviceIdInput.text.clear(); deviceNameInput.text.clear(); deviceLabelInput.text.clear()
+        refreshKnownDevices()
+        addHistory("DEVICE_LABEL", "Updated label for $id")
+        Toast.makeText(this, "Device note saved locally", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun refreshKnownDevices() {
+        if (!::knownDevicesView.isInitialized) return
+        val labels = try { JSONObject(prefs.getString("device_labels", "{}")) } catch (_: Exception) { JSONObject() }
+        val lines = labels.keys().asSequence().toList().sorted().take(50).map { id ->
+            val v = labels.optJSONObject(id) ?: JSONObject()
+            "• $id — ${v.optString("name")} [${v.optString("label")}]"
+        }
+        knownDevicesView.text = if (lines.isEmpty()) "No known-device labels saved." else lines.joinToString("\n")
+    }
+
+    private fun buildCsv(): String {
+        val out = StringBuilder("timestamp,type,detail\r\n")
+        historyItems.forEach { line ->
+            val parts = line.split(" | ", limit = 3)
+            val cols = listOf(parts.getOrElse(0) { "" }, parts.getOrElse(1) { "" }, parts.getOrElse(2) { "" })
+            out.append(cols.joinToString(",") { "\"${it.replace("\"", "\"\"")}\"" }).append("\r\n")
+        }
+        return out.toString()
+    }
+
+    private fun confirmClearHistory() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Clear local event history?")
+            .setMessage("This removes saved event history from this app. Device labels and scan snapshots are kept.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Clear") { _, _ -> historyItems.clear(); persistHistory(); refreshHistory(); Toast.makeText(this, "History cleared", Toast.LENGTH_SHORT).show() }
+            .show()
     }
 
     private fun startShield() {
         if (running) return
+        addHistory("AUDIO", "Acoustic monitor and masker starting; mode=${modeSpinner.selectedItemPosition}")
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 10); return
         }
@@ -359,7 +625,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun stopShield() {
+        val wasRunning = running
         running = false
+        if (wasRunning) addHistory("AUDIO", "Acoustic monitor and masker stopped")
         try { recorder?.stop() } catch (_: Exception) {}
         try { track?.stop() } catch (_: Exception) {}
         worker?.join(700); worker = null

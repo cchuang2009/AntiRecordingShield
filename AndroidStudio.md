@@ -1,11 +1,11 @@
 ## Android Studio
 # Use/Install apk on cell phone
 
-1. Use Cell Phone, Pixel 6a, to debug devices
+1. Use Cell Phone, Pixel 6a, to debug devices, (**shutdown byitsef Possiblly**, turn on again):
    - [Setting] -> [About phone] -> Press [Build mumber]  7 times, to change to devoper mode.
    - Enable MTP, or dat transfer, <br>
-     - Press [Setting] -> [System] -> [{} eveloper options] -> [USB Debugging]
-  - While conected with PC, in popout, ("Charging this device via USB"), and select File Transfer or MTP.
+     - Press [Setting] -> [System] -> [{} developer options] -> [USB Debugging]
+  - While conected with PC, in popout, ("Charging this device via USB"), and select File Transfer or MTP. **Watch the popout to change**.
 2. Generated a "signed" apk to install on Pixel cell phone
    - enable top menu
    - [Build] -> [Generate App Bundels or APKs] -> both [Generate APKS] and [Generate Bundles]

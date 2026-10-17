@@ -231,6 +231,42 @@
                     }
                 },
                 {
+                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/res/values/styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "501"
+                    },
+                    "to": {
+                        "startLines": "101",
+                        "startColumns": "4",
+                        "startOffsets": "6137",
+                        "endLines": "108",
+                        "endColumns": "12",
+                        "endOffsets": "6583"
+                    }
+                },
+                {
+                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/res/values/colors.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "11",
+                        "startOffsets": "50",
+                        "endColumns": "60",
+                        "endOffsets": "99"
+                    },
+                    "to": {
+                        "startLines": "7",
+                        "startColumns": "4",
+                        "startOffsets": "406",
+                        "endColumns": "53",
+                        "endOffsets": "455"
+                    }
+                },
+                {
                     "source": "/home/cchuang/.gradle/caches/8.13/transforms/7c283db00b156799fa7b172b1f277a14/transformed/core-viewtree-1.0.0/res/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -301,25 +337,6 @@
                     }
                 },
                 {
-                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/res/values/styles.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endLines": "9",
-                        "endColumns": "12",
-                        "endOffsets": "501"
-                    },
-                    "to": {
-                        "startLines": "101",
-                        "startColumns": "4",
-                        "startOffsets": "6137",
-                        "endLines": "108",
-                        "endColumns": "12",
-                        "endOffsets": "6583"
-                    }
-                },
-                {
                     "source": "/home/cchuang/.gradle/caches/8.13/transforms/1fdd0393ce4cb9c27cee0271bdc97a68/transformed/savedstate-1.2.1/res/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -351,23 +368,6 @@
                         "startOffsets": "5472",
                         "endColumns": "82",
                         "endOffsets": "5550"
-                    }
-                },
-                {
-                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/res/values/colors.xml",
-                    "from": {
-                        "startLines": "1",
-                        "startColumns": "11",
-                        "startOffsets": "50",
-                        "endColumns": "60",
-                        "endOffsets": "99"
-                    },
-                    "to": {
-                        "startLines": "7",
-                        "startColumns": "4",
-                        "startOffsets": "406",
-                        "endColumns": "53",
-                        "endOffsets": "455"
                     }
                 }
             ]

@@ -1,125 +1,175 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.example.antirecording"
-4    android:versionCode="4"
-5    android:versionName="0.4.0" >
+4    android:versionCode="11"
+5    android:versionName="1.1.0" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
 9        android:targetSdkVersion="36" />
 10
 11    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-11-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:3:5-71
-11-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:3:22-68
+11-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:3:5-71
+11-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:3:22-68
 12    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-12-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:4:5-80
-12-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:4:22-77
-13    <uses-permission android:name="android.permission.VIBRATE" />
-13-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:5:5-66
-13-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:5:22-63
-14
-15    <permission
-15-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:22:5-24:47
-16        android:name="com.example.antirecording.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-16-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:23:9-81
-17        android:protectionLevel="signature" />
-17-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:24:9-44
-18
-19    <uses-permission android:name="com.example.antirecording.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-19-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:26:5-97
-19-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:26:22-94
-20
-21    <application
-21-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:6:5-19:19
-22        android:allowBackup="false"
-22-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:7:9-36
-23        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-23-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:28:18-86
-24        android:debuggable="true"
-25        android:extractNativeLibs="false"
-26        android:icon="@mipmap/ic_launcher"
-26-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:8:9-43
-27        android:label="Anti-Recording Shield"
-27-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:10:9-46
-28        android:roundIcon="@mipmap/ic_launcher_round"
-28-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:9:9-54
-29        android:supportsRtl="true"
-29-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:11:9-35
-30        android:theme="@style/AppTheme" >
-30-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:12:9-40
-31        <activity
-31-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:9-18:20
-32            android:name="com.example.antirecording.MainActivity"
-32-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:19-47
-33            android:exported="true"
-33-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:85-108
-34            android:screenOrientation="portrait" >
-34-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:13:48-84
-35            <intent-filter>
-35-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:14:13-17:29
-36                <action android:name="android.intent.action.MAIN" />
-36-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:15:17-69
-36-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:15:25-66
-37
-38                <category android:name="android.intent.category.LAUNCHER" />
-38-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:16:17-77
-38-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v0.7/app/src/main/AndroidManifest.xml:16:27-74
-39            </intent-filter>
-40        </activity>
-41
-42        <provider
-42-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:24:9-32:20
-43            android:name="androidx.startup.InitializationProvider"
-43-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:25:13-67
-44            android:authorities="com.example.antirecording.androidx-startup"
-44-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:26:13-68
-45            android:exported="false" >
-45-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:27:13-37
-46            <meta-data
-46-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
-47                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-47-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
-48                android:value="androidx.startup" />
-48-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
-49        </provider>
-50
-51        <receiver
-51-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
-52            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-52-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
-53            android:directBootAware="false"
-53-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
-54            android:enabled="true"
-54-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
-55            android:exported="true"
-55-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
-56            android:permission="android.permission.DUMP" >
-56-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
-57            <intent-filter>
-57-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
-58                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-58-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
-58-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
-59            </intent-filter>
-60            <intent-filter>
-60-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
-61                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-61-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
-61-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+12-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:4:5-80
+12-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:4:22-77
+13    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+13-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:5:5-76
+13-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:5:22-73
+14    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+14-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:6:5-76
+14-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:6:22-73
+15    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+15-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:7:5-79
+15-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:7:22-76
+16    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+16-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:8:5-81
+16-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:8:22-78
+17    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+17-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:9:5-79
+17-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:9:22-76
+18    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+18-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:10:5-78
+18-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:10:22-75
+19    <uses-permission
+19-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:11:5-95
+20        android:name="android.permission.BLUETOOTH"
+20-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:11:22-65
+21        android:maxSdkVersion="30" />
+21-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:11:66-92
+22    <uses-permission
+22-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:12:5-101
+23        android:name="android.permission.BLUETOOTH_ADMIN"
+23-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:12:22-71
+24        android:maxSdkVersion="30" />
+24-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:12:72-98
+25    <uses-permission
+25-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:13:5-120
+26        android:name="android.permission.BLUETOOTH_SCAN"
+26-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:13:22-70
+27        android:usesPermissionFlags="neverForLocation" />
+27-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:13:71-117
+28    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+28-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:14:5-76
+28-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:14:22-73
+29
+30    <uses-feature
+30-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:15:5-91
+31        android:name="android.hardware.bluetooth_le"
+31-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:15:19-63
+32        android:required="false" />
+32-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:15:64-88
+33    <uses-feature
+33-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:16:5-83
+34        android:name="android.hardware.wifi"
+34-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:16:19-55
+35        android:required="false" />
+35-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:16:56-80
+36
+37    <permission
+37-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:22:5-24:47
+38        android:name="com.example.antirecording.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+38-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:23:9-81
+39        android:protectionLevel="signature" />
+39-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:24:9-44
+40
+41    <uses-permission android:name="com.example.antirecording.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+41-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:26:5-97
+41-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:26:22-94
+42
+43    <application
+43-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:17:5-30:19
+44        android:allowBackup="false"
+44-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:18:9-36
+45        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+45-->[androidx.core:core:1.13.0] /home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/AndroidManifest.xml:28:18-86
+46        android:debuggable="true"
+47        android:extractNativeLibs="false"
+48        android:icon="@mipmap/ic_launcher"
+48-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:19:9-43
+49        android:label="Anti-Recording Shield"
+49-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:21:9-46
+50        android:roundIcon="@mipmap/ic_launcher_round"
+50-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:20:9-54
+51        android:supportsRtl="true"
+51-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:22:9-35
+52        android:testOnly="true"
+53        android:theme="@style/AppTheme" >
+53-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:23:9-40
+54        <activity
+54-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:24:9-29:20
+55            android:name="com.example.antirecording.MainActivity"
+55-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:24:19-47
+56            android:exported="true"
+56-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:24:85-108
+57            android:screenOrientation="portrait" >
+57-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:24:48-84
+58            <intent-filter>
+58-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:25:13-28:29
+59                <action android:name="android.intent.action.MAIN" />
+59-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:26:17-69
+59-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:26:25-66
+60
+61                <category android:name="android.intent.category.LAUNCHER" />
+61-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:27:17-77
+61-->/home/cchuang/Downloads/2026/GoogleStudio/AntiRecordingShield_v1.1/app/src/main/AndroidManifest.xml:27:27-74
 62            </intent-filter>
-63            <intent-filter>
-63-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
-64                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-64-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
-64-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
-65            </intent-filter>
-66            <intent-filter>
-66-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
-67                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-67-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
-67-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
-68            </intent-filter>
-69        </receiver>
-70    </application>
-71
-72</manifest>
+63        </activity>
+64
+65        <provider
+65-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:24:9-32:20
+66            android:name="androidx.startup.InitializationProvider"
+66-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:25:13-67
+67            android:authorities="com.example.antirecording.androidx-startup"
+67-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:26:13-68
+68            android:exported="false" >
+68-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:27:13-37
+69            <meta-data
+69-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+70                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+70-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+71                android:value="androidx.startup" />
+71-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+72        </provider>
+73
+74        <receiver
+74-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+75            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+75-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+76            android:directBootAware="false"
+76-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+77            android:enabled="true"
+77-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+78            android:exported="true"
+78-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+79            android:permission="android.permission.DUMP" >
+79-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+80            <intent-filter>
+80-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+81                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+81-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+81-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+82            </intent-filter>
+83            <intent-filter>
+83-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+84                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+84-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+84-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+85            </intent-filter>
+86            <intent-filter>
+86-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+87                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+87-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+87-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+88            </intent-filter>
+89            <intent-filter>
+89-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+90                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+90-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+90-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/cchuang/.gradle/caches/8.13/transforms/2c40bae48adb4c5cd545c2aca4010f0f/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+91            </intent-filter>
+92        </receiver>
+93    </application>
+94
+95</manifest>
