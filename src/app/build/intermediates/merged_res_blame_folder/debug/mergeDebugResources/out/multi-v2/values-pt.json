@@ -1,16 +1,16 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.antirecording.app-mergeDebugResources-19:/values-pt/values-pt.xml",
+            "outputFile": "com.antirecording.shield.app-mergeDebugResources-20:/values-pt/values-pt.xml",
             "map": [
                 {
-                    "source": "/home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/res/values-pt/values-pt.xml",
+                    "source": "/home/cchuang/.gradle/caches/8.13/transforms/62f495c6767caa57c569db99f40eb233/transformed/core-1.16.0/res/values-pt/values-pt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,152,254,353,453,560,670,790",
-                        "endColumns": "96,101,98,99,106,109,119,100",
-                        "endOffsets": "147,249,348,448,555,665,785,886"
+                        "startOffsets": "55,152,254,353,453,563,673,793",
+                        "endColumns": "96,101,98,99,109,109,119,100",
+                        "endOffsets": "147,249,348,448,558,668,788,889"
                     }
                 }
             ]

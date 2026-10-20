@@ -1,0 +1,4 @@
+#Tue Oct 20 10:04:44 CST 2026
+base.0=/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/0/classes.dex
+path.0=0/classes.dex
+renamed.0=classes.dex

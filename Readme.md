@@ -4,7 +4,8 @@
 
 Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄音與 AI 語音辨識的有效性。
 
-# versions (last 0.7)
+# Versions (last 1.1.4)
+
 - 0.1
   - Kotlin / Android Studio project 專案
   - START / STOP (Shielding) button,  反錄音聲學遮蔽
@@ -41,6 +42,16 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
   - UltraSound, 超音波干擾
   - Adversarial WAV, 對抗式擾動 
 
+- 1.1
+  Strength for devices scanning
+  - Analyze Sound, 聲學分析、
+  - Scan WIFI/Bluetooth devuces, Wi-Fi 掃描、Bluetooth LE 掃描, ** enable Wifi/Bluetooth** 
+  - scanning data option, 資料管理
+  - tag the known devices, 標記裝置標籤
+
+ - 1.1.4
+  - Wifi/BT Scan Radar  
+
  # Project, [src]
    - [AndroidStudio.md](AndroidStudio.md), use/install Cell phone to test
    - Apk, [AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk]
@@ -51,5 +62,5 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
 
  # Concerned, 
    - diffusion, cchuang2009_@_gmail.com 
-   - chatgpt 
-   - claude, 
+   - chatgpt bot,
+   - claude bot, 

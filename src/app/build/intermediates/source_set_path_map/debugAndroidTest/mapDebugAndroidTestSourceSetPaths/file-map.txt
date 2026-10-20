@@ -1,0 +1,5 @@
+com.antirecording.shield.test.app-androidTest-0 /home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/generated/res/resValues/androidTest/debug
+com.antirecording.shield.test.app-updated_navigation_xml-1 /home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/generated/updated_navigation_xml/debugAndroidTest
+com.antirecording.shield.test.app-mergeDebugAndroidTestResources-2 /home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+com.antirecording.shield.test.app-mergeDebugAndroidTestResources-3 /home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+com.antirecording.shield.test.app-debugAndroidTest-4 /home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.antirecording.app-mergeDebugResources-19:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.antirecording.shield.app-mergeDebugResources-20:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
-                    "source": "/home/cchuang/.gradle/caches/8.13/transforms/ac09b84111f30c3c1c29b137eaea46b9/transformed/core-1.13.0/res/values-fr-rCA/values-fr-rCA.xml",
+                    "source": "/home/cchuang/.gradle/caches/8.13/transforms/62f495c6767caa57c569db99f40eb233/transformed/core-1.16.0/res/values-fr-rCA/values-fr-rCA.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
