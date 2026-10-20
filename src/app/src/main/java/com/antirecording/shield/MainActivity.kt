@@ -211,7 +211,7 @@ class MainActivity : ComponentActivity() {
         header.addView(logo, LinearLayout.LayoutParams(dp(48), dp(48)))
         val titleBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(12), 0, 0, 0) }
         titleBox.addView(label("Hush Shield", 20f, white, true))
-        titleBox.addView(label("VOICE PRIVACY + NEARBY RADAR  •  v1.1.4", 10f, cyan, true))
+        titleBox.addView(label("VOICE PRIVACY + NEARBY RADAR  •  v1.1.5", 10f, cyan, true))
         header.addView(titleBox, LinearLayout.LayoutParams(0, -2, 1f))
         page.addView(header)
         addGap(page, 12)
@@ -443,6 +443,7 @@ class MainActivity : ComponentActivity() {
     // Bluetooth radar: BLE scan + Classic discovery, animated sweep, RSSI-based distance
     // ------------------------------------------------------------------------------------
     private lateinit var radar: RadarView
+    private lateinit var radarAge: TextView
     private lateinit var radarStatus: TextView
     private lateinit var radarList: TextView
     private lateinit var radarStart: Button
@@ -464,6 +465,7 @@ class MainActivity : ComponentActivity() {
     // Wi-Fi radar: access points in range, animated sweep, Wi-Fi RTT distance when available
     // ------------------------------------------------------------------------------------
     private lateinit var wifiRadar: RadarView
+    private lateinit var wifiAge: TextView
     private lateinit var wifiStatus: TextView
     private lateinit var wifiList: TextView
     private lateinit var wifiStart: Button
@@ -493,6 +495,8 @@ class MainActivity : ComponentActivity() {
         addGap(c, 4)
         wifiRadar = RadarView(this).apply { wifiMode = true }
         c.addView(wifiRadar, LinearLayout.LayoutParams(-1, dp(310)))
+        wifiAge = label("", 10f, muted); wifiAge.gravity = Gravity.CENTER_HORIZONTAL
+        c.addView(wifiAge, LinearLayout.LayoutParams(-1, -2))
         val opts = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         cbRtt = CheckBox(this).apply { text = "Use Wi-Fi RTT"; isChecked = true; setTextColor(white) }
         wifiEnv = Button(this).apply {
@@ -557,9 +561,12 @@ class MainActivity : ComponentActivity() {
     private fun refreshWifiRadar() {
         if (!::wifiRadar.isInitialized) return
         val list = wifiScanner.list()
-        wifiRadar.setBlips(list.mapNotNull { a ->
-            wifiScanner.distanceM(a)?.let { RadarView.Blip(a.bssid, ((a.bssid.hashCode() and 0x7fffffff) % 360).toFloat(), it, if (a.band() == 24) 3 else 4, wifiScanner.isMeasured(a)) }
+        // one blip per network name: 2.4/5/6 GHz radios and mesh nodes of the same SSID collapse into the nearest one
+        wifiRadar.setBlips(list.groupBy { if (it.ssid.isBlank()) it.bssid else it.ssid }.mapNotNull { (key, group) ->
+            val best = group.minByOrNull { wifiScanner.distanceM(it) ?: Double.MAX_VALUE } ?: return@mapNotNull null
+            wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best)) }
         })
+        wifiAge.text = wifiScanner.updatedText()
         if (wifiScanner.scanning) wifiStatus.text = "Scanning… ${wifiScanner.remainingSec()} s · ${wifiScanner.summary()}" + (wifiScanner.lastError?.let { " · $it" } ?: "")
         wifiList.text = if (list.isEmpty()) "" else list.take(15).joinToString("\n") { a ->
             val band = when (a.band()) { 24 -> "2.4G"; 5 -> "5G  "; else -> "6G  " }
@@ -582,6 +589,8 @@ class MainActivity : ComponentActivity() {
         addGap(c, 4)
         radar = RadarView(this)
         c.addView(radar, LinearLayout.LayoutParams(-1, dp(310)))
+        radarAge = label("", 10f, muted); radarAge.gravity = Gravity.CENTER_HORIZONTAL
+        c.addView(radarAge, LinearLayout.LayoutParams(-1, -2))
         val opts = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         cbBle = CheckBox(this).apply { text = "BLE"; isChecked = true; setTextColor(white) }
         cbClassic = CheckBox(this).apply { text = "Classic"; isChecked = true; setTextColor(white) }
@@ -647,13 +656,23 @@ class MainActivity : ComponentActivity() {
         return if (t.isBlank()) "" else " [$t]"
     }
 
+    /** Well-mixed 0..359 angle from an id (String.hashCode alone clusters, which made blips pile up on one side). */
+    private fun angleOf(id: String): Float {
+        var h = id.hashCode()
+        h = h xor (h ushr 16); h *= -0x7a143595
+        h = h xor (h ushr 13); h *= -0x3d4d51cb
+        h = h xor (h ushr 16)
+        return ((h and 0x7fffffff) % 360).toFloat()
+    }
+
     private fun refreshRadar() {
         if (!::radar.isInitialized) return
-        val list = scanner.list()
+        val list = scanner.list(6)    // at most 6 anonymous random-address LE devices (mostly Apple); named / Classic devices always shown
         radar.setBlips(list.mapNotNull { d ->
-            scanner.distanceM(d)?.let { RadarView.Blip(d.address, ((d.address.hashCode() and 0x7fffffff) % 360).toFloat(), it, if (d.le && d.classic) 2 else if (d.classic) 1 else 0) }
+            scanner.distanceM(d)?.let { RadarView.Blip(d.address, angleOf(d.address), it, if (d.le && d.classic) 2 else if (d.classic) 1 else 0, false, scanner.ageFrac(d)) }
         })
-        if (scanner.scanning) radarStatus.text = "Scanning (${scanner.phase()})… ${scanner.remainingSec()} s · ${scanner.summary()}\n${scanner.raw()}" + (scanner.lastError?.let { "\n$it" } ?: "")
+        radarAge.text = scanner.updatedText()
+        if (scanner.scanning) radarStatus.text = "Scanning (${scanner.phase()})… ${scanner.remainingSec()} s · ${scanner.summary()}\n${scanner.raw()}" + (if (scanner.hiddenAnon > 0) "\n+${scanner.hiddenAnon} anonymous random-address devices not listed" else "") + (scanner.lastError?.let { "\n$it" } ?: "")
         radarList.text = if (list.isEmpty()) "" else list.take(15).joinToString("\n") { d ->
             val kind = if (d.le && d.classic) "LE+BR" else if (d.le) "LE   " else "BR   "
             val dist = scanner.distanceM(d)?.let { if (it > rangeM[rangeIdx]) ">${rangeM[rangeIdx].toInt()} m " else String.format(Locale.US, "%4.1f m", it) } ?: "  ?   "

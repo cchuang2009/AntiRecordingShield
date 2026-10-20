@@ -71,6 +71,12 @@ class BtScanner(
     private val handler = Handler(Looper.getMainLooper())
     private var leCallback: ScanCallback? = null
     private var receiverRegistered = false
+    private var notifyPending = false
+    private val anonWindowMs = 10_000L
+    /** Anonymous (no name, random-address) LE devices that list(maxAnon) left out on the last call. */
+    var hiddenAnon = 0; private set
+    private var lastLeAt = 0L
+    private var lastClassicAt = 0L
     private val activeWindowMs get() = if (wantBle && wantClassic) 36_000L else 15_000L
 
     private fun adapter(): BluetoothAdapter? = ctx.getSystemService(BluetoothManager::class.java)?.adapter
@@ -82,7 +88,7 @@ class BtScanner(
         if (!ad.isEnabled) return "Bluetooth is off. Turn it on in Android settings, then try again."
         stop()
         devices.clear(); lastError = null; bleStartError = null; discoveryStartOk = null
-        bleHits = 0; classicHits = 0; discoveryRuns = 0
+        bleHits = 0; classicHits = 0; discoveryRuns = 0; lastLeAt = 0L; lastClassicAt = 0L
         n = pathLossN; wantBle = ble; wantClassic = classic
         startedAt = SystemClock.uptimeMillis(); endAt = startedAt + durationMs; scanning = true
         try {
@@ -99,13 +105,25 @@ class BtScanner(
 
     @SuppressLint("MissingPermission")
     fun stop() {
-        handler.removeCallbacksAndMessages(null)
+        handler.removeCallbacksAndMessages(null); notifyPending = false
         stopLe(); stopClassic()
         if (receiverRegistered) { try { ctx.unregisterReceiver(receiver) } catch (_: Exception) {}; receiverRegistered = false }
         scanning = false
     }
 
     fun remainingSec(): Int = if (scanning) max(0L, (endAt - SystemClock.uptimeMillis()) / 1000).toInt() else 0
+
+    /** "Last updated: BLE 2 s ago · Classic 14 s ago (listening: Classic)" while scanning, else "". */
+    fun updatedText(): String {
+        if (!scanning) return ""
+        val now = SystemClock.uptimeMillis()
+        fun ago(t: Long) = if (t == 0L) "no data yet" else "${(now - t) / 1000} s ago"
+        val parts = ArrayList<String>()
+        if (wantBle) parts.add("BLE ${ago(lastLeAt)}")
+        if (wantClassic) parts.add("Classic ${ago(lastClassicAt)}")
+        val ph = if (wantBle && wantClassic) " (listening: ${phase()})" else ""
+        return "Last updated: " + parts.joinToString(" · ") + ph
+    }
 
     /** Which radio is listening right now. */
     fun phase(): String = if (!scanning) "idle" else if (leCallback != null && classicOn) "BLE+Classic" else if (leCallback != null) "BLE" else if (classicOn) "Classic" else "waiting"
@@ -114,10 +132,31 @@ class BtScanner(
         (discoveryStartOk?.let { " (start ${if (it) "ok" else "REFUSED"})" } ?: "") + (bleStartError?.let { " · $it" } ?: "")
 
     /** Devices to show: while scanning only those heard recently, afterwards everything seen in the session. Nearest first. */
-    fun list(): List<Dev> {
+    fun list(maxAnon: Int = Int.MAX_VALUE): List<Dev> {
         val now = SystemClock.uptimeMillis()
-        return devices.values.filter { !scanning || now - it.lastSeen <= activeWindowMs }
+        val live = devices.values.filter { !scanning || now - it.lastSeen <= windowFor(it) }
             .sortedBy { distanceM(it) ?: Double.MAX_VALUE }
+        var kept = 0; var hidden = 0
+        val out = ArrayList<Dev>()
+        for (d in live) {
+            if (isAnon(d)) { if (kept < maxAnon) { out.add(d); kept++ } else hidden++ } else out.add(d)
+        }
+        hiddenAnon = hidden
+        return out
+    }
+
+    /** No name, LE only, no/Apple vendor: typically phones / tags with a rotating random address - they flood the list. */
+    private fun isAnon(d: Dev) = d.name == null && !d.classic && (d.vendor == null || d.vendor == "Apple")
+    private fun windowFor(d: Dev) = if (isAnon(d)) anonWindowMs else activeWindowMs
+
+    /** 0 = just heard .. 1 = about to be dropped from the list (used to fade radar blips). */
+    fun ageFrac(d: Dev): Float = if (!scanning) 0f else ((SystemClock.uptimeMillis() - d.lastSeen).toFloat() / windowFor(d)).coerceIn(0f, 1f)
+
+    /** Coalesce the flood of per-advertisement callbacks into at most one UI refresh per 250 ms. */
+    private fun notifySoon() {
+        if (notifyPending) return
+        notifyPending = true
+        handler.postDelayed({ notifyPending = false; onChange() }, 250)
     }
 
     fun distanceM(d: Dev): Double? {
@@ -179,7 +218,7 @@ class BtScanner(
 
     private fun handleLe(r: ScanResult) {
         val now = SystemClock.uptimeMillis()
-        bleHits++
+        bleHits++; lastLeAt = now
         val d = dev(r.device.address)
         d.le = true
         d.add(r.rssi, now)
@@ -189,7 +228,7 @@ class BtScanner(
         else r.scanRecord?.txPowerLevel?.takeIf { it != Int.MIN_VALUE }?.let { d.txPower = it }
         val msd = r.scanRecord?.manufacturerSpecificData
         if (msd != null && msd.size() > 0) d.vendor = vendorName(msd.keyAt(0))
-        onChange()
+        notifySoon()
     }
 
     @SuppressLint("MissingPermission")
@@ -217,7 +256,7 @@ class BtScanner(
                     val bd: BluetoothDevice = (if (Build.VERSION.SDK_INT >= 33) i.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
                                                else i.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)) ?: return
                     classicHits++
-                    val now = SystemClock.uptimeMillis()
+                    val now = SystemClock.uptimeMillis(); lastClassicAt = now
                     val d = dev(bd.address)
                     d.classic = true
                     val rssi = i.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE).toInt()
@@ -225,7 +264,7 @@ class BtScanner(
                     val nm = i.getStringExtra(BluetoothDevice.EXTRA_NAME) ?: try { bd.name } catch (_: SecurityException) { null }
                     if (!nm.isNullOrBlank()) d.name = nm
                     try { d.cls = classLabel(bd.bluetoothClass?.majorDeviceClass) } catch (_: SecurityException) {}
-                    onChange()
+                    notifySoon()
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     // an inquiry lasts ~12 s; if we are still in a Classic slot, run another one

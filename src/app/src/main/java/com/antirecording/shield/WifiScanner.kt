@@ -63,6 +63,7 @@ class WifiScanner(
     private var lastHarvest = 0L
     private var lastRange = 0L
     private var rttBusy = false
+    private var newestTsUs = 0L       // newest scan-result timestamp seen (boot-relative, microseconds)
     private val handler = Handler(Looper.getMainLooper())
     private var receiverRegistered = false
     private val rttFreshMs = 15_000L
@@ -77,7 +78,7 @@ class WifiScanner(
         if (!w.isWifiEnabled) return "Wi-Fi is off. Turn it on in Android settings, then try again."
         stop()
         aps.clear(); lastError = null; n = pathLossN; rttEnabled = useRtt; rttAvailable = null; rttBusy = false
-        scansRequested = 0; scansThrottled = 0
+        scansRequested = 0; scansThrottled = 0; newestTsUs = 0L
         val now = SystemClock.uptimeMillis(); startedAt = now; endAt = now + durationMs; lastScanReq = 0L; lastHarvest = 0L; lastRange = 0L
         scanning = true
         val f = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
@@ -131,6 +132,7 @@ class WifiScanner(
         for (sr in w.scanResults ?: return) {
             val bssid = sr.BSSID ?: continue
             if ((bootUs - sr.timestamp) / 1_000_000L > 120) continue          // ignore stale cache entries
+            if (sr.timestamp > newestTsUs) newestTsUs = sr.timestamp
             val ap = aps.getOrPut(bssid) { Ap(bssid).also { it.firstSeen = now } }
             if (sr.timestamp != ap.lastTs) { ap.lastTs = sr.timestamp; ap.add(sr.level, now) } else ap.lastSeen = max(ap.lastSeen, now - 1)
             @Suppress("DEPRECATION") val s = sr.SSID
@@ -185,6 +187,19 @@ class WifiScanner(
         val ref = when (a.band()) { 24 -> -40; 5 -> -47; else -> -50 }
         return 10.0.pow((ref - a.rssi()) / (10.0 * n)).coerceIn(0.1, 150.0)
     }
+
+    /** "Last updated: Wi-Fi data 12 s ago · next scan in ≈ 8 s" while scanning, else "". Data age = age of the newest scan result, not of the last cache read. */
+    fun updatedText(): String {
+        if (!scanning) return ""
+        val data = if (newestTsUs == 0L) "no data yet" else "${max(0L, (SystemClock.elapsedRealtime() * 1000 - newestTsUs) / 1_000_000L)} s ago"
+        val next = max(0L, (lastScanReq + 20_000L - SystemClock.uptimeMillis()) / 1000)
+        return "Last updated: Wi-Fi data $data · next scan in ≈ $next s" +
+            (if (scansThrottled > 0) " (Android throttled $scansThrottled)" else "") +
+            (if (rttEnabled && rttAvailable == true) " · RTT every 3 s" else "")
+    }
+
+    /** 0 = just seen .. 1 = about to be dropped from the list (used to fade radar blips). */
+    fun ageFrac(a: Ap): Float = if (!scanning) 0f else ((SystemClock.uptimeMillis() - a.lastSeen).toFloat() / apWindowMs).coerceIn(0f, 1f)
 
     fun list(): List<Ap> {
         val now = SystemClock.uptimeMillis()
