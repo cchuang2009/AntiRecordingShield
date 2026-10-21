@@ -4,7 +4,7 @@
 
 Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄音與 AI 語音辨識的有效性。
 
-# Versions (last 1.1.4)
+# Versions (last 1.1.5)
 
 - 0.1
   - Kotlin / Android Studio project 專案
@@ -49,18 +49,22 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
   - scanning data option, 資料管理
   - tag the known devices, 標記裝置標籤
 
- - 1.1.4
+- 1.1.4
   - Wifi/BT Scan Radar  
+ 
+- 1.1.5
+  - **New — Direction finder (BLE):** pick a device, turn slowly on the spot for ~20 s; compass + signal strength show where the signal is strongest (about ±30–45°). **新增「找方向」（BLE）：** 選一個裝置，在原地慢慢轉約 20 秒；以羅盤加訊號強度找出訊號最強的方位（約 ±30–45°）。
+  - [New Features](https://github.com/cchuang2009/AntiRecordingShield/blob/main/src/app/src/main/java/com/antirecording/shield/FEATURES.md)
 
- # Project, [src]
+# Project, [src]
    - [AndroidStudio.md](AndroidStudio.md), use/install Cell phone to test
    - Apk, [AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk]
 
- # Test Platform
+# Test Platform
    - Manjaro, Android Studio, 
    - openjdk 26.0.2.1, gradle 9.4.1
 
- # Concerned, 
+# Concerned, 
    - diffusion, cchuang2009_@_gmail.com 
    - chatgpt bot,
    - claude bot, 
