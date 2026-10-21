@@ -37,7 +37,7 @@ class WifiScanner(
         var lastTs = 0L; var firstSeen = 0L; var lastSeen = 0L
         var rttM: Double? = null; var rttStdM: Double? = null; var rttAt = 0L
         private val samples = ArrayDeque<Int>()
-        fun add(rssi: Int, now: Long) { samples.addLast(rssi); while (samples.size > 5) samples.removeFirst(); lastSeen = now }
+        fun add(rssi: Int, now: Long) { samples.addLast(rssi); while (samples.size > 3) samples.removeFirst(); lastSeen = now }
         fun hasRssi() = samples.isNotEmpty()
         fun rssi(): Int { val s = samples.sorted(); return s[s.size / 2] }
         fun band(): Int = if (freq < 3000) 24 else if (freq < 5925) 5 else 6
@@ -63,6 +63,8 @@ class WifiScanner(
     private var lastHarvest = 0L
     private var lastRange = 0L
     private var rttBusy = false
+    private var scanEveryMs = 30_000L      // 30 s = the most Android lets a foreground app scan without throttling (4 per 2 min)
+    private var harvestEveryMs = 4_000L
     private var newestTsUs = 0L       // newest scan-result timestamp seen (boot-relative, microseconds)
     private val handler = Handler(Looper.getMainLooper())
     private var receiverRegistered = false
@@ -73,10 +75,11 @@ class WifiScanner(
 
     /** @return an error message, or null when the radar has started. */
     @SuppressLint("MissingPermission")
-    fun start(durationMs: Long, useRtt: Boolean, pathLossN: Double): String? {
+    fun start(durationMs: Long, useRtt: Boolean, pathLossN: Double, fast: Boolean = false): String? {
         val w = wifi() ?: return "This device has no Wi-Fi."
         if (!w.isWifiEnabled) return "Wi-Fi is off. Turn it on in Android settings, then try again."
         stop()
+        scanEveryMs = if (fast) 6_000L else 30_000L; harvestEveryMs = if (fast) 2_000L else 4_000L
         aps.clear(); lastError = null; n = pathLossN; rttEnabled = useRtt; rttAvailable = null; rttBusy = false
         scansRequested = 0; scansThrottled = 0; newestTsUs = 0L
         val now = SystemClock.uptimeMillis(); startedAt = now; endAt = now + durationMs; lastScanReq = 0L; lastHarvest = 0L; lastRange = 0L
@@ -110,8 +113,8 @@ class WifiScanner(
             if (now >= endAt) { stop(); onFinished("Scan complete"); return }
             val w = wifi()
             if (w != null) try {
-                if (now - lastScanReq >= 20_000L) requestScan(w)
-                if (now - lastHarvest >= 4_000L) harvest(w)
+                if (now - lastScanReq >= scanEveryMs) requestScan(w)
+                if (now - lastHarvest >= harvestEveryMs) harvest(w)
                 if (rttEnabled && now - lastRange >= 3_000L) range(w)
             } catch (_: SecurityException) { lastError = "Wi-Fi permission was revoked" }
             onChange(); handler.postDelayed(this, 1000)
@@ -192,9 +195,10 @@ class WifiScanner(
     fun updatedText(): String {
         if (!scanning) return ""
         val data = if (newestTsUs == 0L) "no data yet" else "${max(0L, (SystemClock.elapsedRealtime() * 1000 - newestTsUs) / 1_000_000L)} s ago"
-        val next = max(0L, (lastScanReq + 20_000L - SystemClock.uptimeMillis()) / 1000)
+        val next = max(0L, (lastScanReq + scanEveryMs - SystemClock.uptimeMillis()) / 1000)
         return "Last updated: Wi-Fi data $data · next scan in ≈ $next s" +
             (if (scansThrottled > 0) " (Android throttled $scansThrottled)" else "") +
+            (if (scanEveryMs < 30_000L && scansThrottled >= 3) " · turn OFF Developer option 'Wi-Fi scan throttling' for fast scan" else "") +
             (if (rttEnabled && rttAvailable == true) " · RTT every 3 s" else "")
     }
 

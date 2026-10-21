@@ -211,7 +211,7 @@ class MainActivity : ComponentActivity() {
         header.addView(logo, LinearLayout.LayoutParams(dp(48), dp(48)))
         val titleBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(12), 0, 0, 0) }
         titleBox.addView(label("Hush Shield", 20f, white, true))
-        titleBox.addView(label("VOICE PRIVACY + NEARBY RADAR  •  v1.1.5", 10f, cyan, true))
+        titleBox.addView(label("VOICE PRIVACY + NEARBY RADAR  •  v${FeatureNotes.releases[0].version}", 10f, cyan, true))
         header.addView(titleBox, LinearLayout.LayoutParams(0, -2, 1f))
         page.addView(header)
         addGap(page, 12)
@@ -355,6 +355,8 @@ class MainActivity : ComponentActivity() {
         buildWifiRadarCard(wifiBox)
         addGap(wifiBox, 14)
         buildEnvironmentNotebook(wifiBox)
+        addGap(wifiBox, 14)
+        buildFeaturesCard(wifiBox)
         buildDeviceTestChecklist(testBox)
         selectTab(0)
         setContentView(scroll)
@@ -450,6 +452,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var radarStop: Button
     private lateinit var radarEnv: Button
     private lateinit var radarRange: Button
+    private lateinit var finderView: FinderView
+    private lateinit var finderStatus: TextView
+    private lateinit var finderStop: Button
+    private val finder by lazy { DirectionFinder(this) { refreshFinder() } }
     private lateinit var wifiRange: Button
     private lateinit var cbBle: CheckBox
     private lateinit var cbClassic: CheckBox
@@ -471,6 +477,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var wifiStart: Button
     private lateinit var wifiStop: Button
     private lateinit var wifiEnv: Button
+    private lateinit var cbFast: CheckBox
     private lateinit var cbRtt: CheckBox
     private val wifiScanner by lazy { WifiScanner(this, onChange = { refreshWifiRadar() }, onFinished = { msg -> onWifiRadarFinished(msg) }) }
 
@@ -489,6 +496,21 @@ class MainActivity : ComponentActivity() {
         if (::wifiEnv.isInitialized) wifiEnv.text = t
     }
 
+    /** Bilingual "Features" card, rendered from FeatureNotes.releases (newest first). */
+    private fun buildFeaturesCard(parent: LinearLayout) {
+        val c = cardLayout()
+        c.addView(label("FEATURES  •  功能", 12f, cyan, true))
+        for (r in FeatureNotes.releases) {
+            addGap(c, 10)
+            c.addView(label("v${r.version}", 13f, white, true))
+            addGap(c, 4)
+            r.en.forEach { c.addView(label("• $it", 11f, white)) }
+            addGap(c, 6)
+            r.zh.forEach { c.addView(label("• $it", 11f, muted)) }
+        }
+        parent.addView(c)
+    }
+
     private fun buildWifiRadarCard(parent: LinearLayout) {
         val c = cardLayout()
         c.addView(label("WI-FI RADAR  •  ACCESS POINTS + RTT", 12f, cyan, true))
@@ -504,6 +526,8 @@ class MainActivity : ComponentActivity() {
             setOnClickListener { envIdx = (envIdx + 1) % envName.size; refreshEnvButtons(); if (scanner.scanning || wifiScanner.scanning) Toast.makeText(this@MainActivity, "Applies to the next scan", Toast.LENGTH_SHORT).show() else { refreshRadar(); refreshWifiRadar() } }
         }
         opts.addView(cbRtt)
+        cbFast = CheckBox(this).apply { text = "Fast scan"; isChecked = false; setTextColor(white) }
+        opts.addView(cbFast)
         c.addView(opts)
         wifiRange = Button(this).apply { text = "Range: ${rangeM[rangeIdx].toInt()} m"; setOnClickListener { cycleRange() } }
         val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
@@ -527,7 +551,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startWifiRadar() {
-        val err = wifiScanner.start(60_000L, cbRtt.isChecked, envN[envIdx])
+        val err = wifiScanner.start(60_000L, cbRtt.isChecked, envN[envIdx], cbFast.isChecked)
         if (err != null) { wifiStatus.text = err; addHistory("WIFI_RADAR", err); return }
         wifiRadar.setScanning(true); wifiRadar.setBlips(emptyList())
         wifiStart.isEnabled = false; wifiStop.isEnabled = true; cbRtt.isEnabled = false
@@ -561,8 +585,8 @@ class MainActivity : ComponentActivity() {
     private fun refreshWifiRadar() {
         if (!::wifiRadar.isInitialized) return
         val list = wifiScanner.list()
-        // one blip per network name: 2.4/5/6 GHz radios and mesh nodes of the same SSID collapse into the nearest one
-        wifiRadar.setBlips(list.groupBy { if (it.ssid.isBlank()) it.bssid else it.ssid }.mapNotNull { (key, group) ->
+        // one blip per physical radio: virtual SSIDs of one access point (same BSSID except the last byte, same channel) collapse into one
+        wifiRadar.setBlips(list.groupBy { physKey(it) }.mapNotNull { (key, group) ->
             val best = group.minByOrNull { wifiScanner.distanceM(it) ?: Double.MAX_VALUE } ?: return@mapNotNull null
             wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best)) }
         })
@@ -616,9 +640,78 @@ class MainActivity : ComponentActivity() {
         c.addView(radarStatus)
         radarList = label("", 11f, white).apply { typeface = Typeface.MONOSPACE }
         c.addView(radarList)
+        addGap(c, 14)
+        c.addView(label("DIRECTION FINDER  •  BLE", 12f, cyan, true))
+        c.addView(label("Pick a Bluetooth device, hold the phone flat in front of you (top edge pointing forward) and turn slowly on the spot for about 20 s. The arrow then shows where its signal is strongest. Your body blocks the signal, so the peak is when you FACE the device. Accuracy is roughly ±30–45°, worse near walls.", 11f, muted))
+        finderView = FinderView(this)
+        c.addView(finderView, LinearLayout.LayoutParams(-1, dp(280)))
+        val fbtns = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val finderPick = Button(this).apply { text = "Pick target & turn"; setOnClickListener { pickFinderTarget() } }
+        finderStop = Button(this).apply { text = "Stop"; isEnabled = false; setOnClickListener { stopFinder() } }
+        fbtns.addView(finderPick, LinearLayout.LayoutParams(0, -2, 1.6f).apply { marginEnd = dp(4) })
+        fbtns.addView(finderStop, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(4) })
+        c.addView(fbtns)
+        finderStatus = label("Run a Bluetooth scan first, then pick a device here.", 12f, white, true)
+        c.addView(finderStatus)
         addGap(c, 6)
         c.addView(label("Distance is estimated from signal strength (RSSI) and is only rough: bodies, walls and phone orientation can shift it by several metres. Bluetooth gives no direction, so the angle on the radar is arbitrary. Many devices use random addresses and some never advertise. A nearby device is not evidence that it is recording. Range only changes how the plot is scaled, not how far the radio hears; beyond about 15 m an RSSI distance is a very rough band.", 10f, muted))
         root.addView(c)
+    }
+
+    // ---------------- direction finder ----------------
+    private fun pickFinderTarget() {
+        val devs = scanner.devices.values.filter { it.le && it.hasRssi() }.sortedBy { scanner.distanceM(it) ?: Double.MAX_VALUE }.take(30)
+        if (devs.isEmpty()) { finderStatus.text = "No BLE devices yet. Start a Bluetooth scan above, wait a few seconds, then pick a target."; return }
+        val items = devs.map { d ->
+            String.format(Locale.US, "~%.1f m   %d dBm   %s%s\n%s", scanner.distanceM(d) ?: 0.0, d.rssi(), d.name ?: "Unknown", d.vendor?.let { " ($it)" } ?: "", d.address)
+        }.toTypedArray()
+        android.app.AlertDialog.Builder(this).setTitle("Pick target").setItems(items) { _, i ->
+            val d = devs[i]
+            withPermission(scanPermissions(), finderStatus, true) { startFinder(d.address, d.name ?: "Unknown") }
+        }.setNegativeButton("Cancel", null).show()
+    }
+
+    private fun startFinder(addr: String, name: String) {
+        if (scanner.scanning) stopRadar(true)      // frees the BLE radio for the high-rate, address-filtered scan
+        val err = finder.start(addr, name)
+        if (err != null) { finderStatus.text = err; return }
+        finderStop.isEnabled = true
+        addHistory("BT_FINDER", "Direction finder started for $addr")
+        refreshFinder()
+    }
+
+    private fun stopFinder() {
+        finder.stop()
+        if (::finderStop.isInitialized) finderStop.isEnabled = false
+        refreshFinder()
+    }
+
+    private fun compass8(deg: Float): String = arrayOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")[(((deg + 22.5f) % 360f) / 45f).toInt()]
+
+    private fun refreshFinder() {
+        if (!::finderView.isInitialized) return
+        val est = finder.estimate()
+        val h = if (finder.heading.isNaN()) 0f else finder.heading
+        val live = finder.liveRssi?.let { String.format(Locale.US, "%.0f dBm", it) } ?: "–"
+        finderView.set(finder.profile(), h, est?.bearing, live)
+        val sb = StringBuilder()
+        if (finder.running) {
+            val rem = finder.sweepRemainingSec()
+            sb.append(if (rem > 0) "Turn slowly on the spot… $rem s" else "Keep turning to refine, or tap Stop")
+            sb.append(" · ${finder.samples} samples · ${(finder.coverage() * 100).toInt()}% of circle")
+        } else if (finder.samples > 0) sb.append("Stopped · ${finder.samples} samples") else sb.append("Idle.")
+        if (finder.targetAddress.isNotEmpty()) sb.append("\nTarget: ${finder.targetName} ${finder.targetAddress}")
+        if (est != null) {
+            val d = ((est.bearing - h + 540f) % 360f) - 180f
+            sb.append("\nStrongest signal toward ${est.bearing.toInt()}° ${compass8(est.bearing)} (magnetic) · ")
+            sb.append(if (abs(d) <= 15f) "you are pointing at it" else "turn ${abs(d).toInt()}° ${if (d > 0) "right" else "left"}")
+            if (finder.coverage() < 0.6f) sb.append("\nTurn through more of the circle for a reliable result.")
+            else if (est.spreadDb < 4.0) sb.append("\nWeak contrast (${String.format(Locale.US, "%.1f", est.spreadDb)} dB): direction unreliable. The device may be far away, or the signal is bouncing off walls.")
+        } else if (finder.running && finder.samples > 0) sb.append("\nCollecting… keep turning.")
+        else if (finder.running) sb.append("\nWaiting for the device's advertisements (is it still on and in range?).")
+        if (finder.running && finder.compassAccuracy <= 1) sb.append("\nCompass needs calibration: wave the phone in a figure-8, away from metal and magnets.")
+        finder.error?.let { sb.append("\n").append(it) }
+        finderStatus.text = sb.toString()
     }
 
     private fun startRadar() {
@@ -654,6 +747,12 @@ class MainActivity : ComponentActivity() {
         val v = labels.optJSONObject(addr) ?: return ""
         val t = v.optString("label").ifBlank { v.optString("name") }
         return if (t.isBlank()) "" else " [$t]"
+    }
+
+    /** Same radio = same BSSID apart from the last octet (virtual SSIDs such as "Free Wi-Fi" / "Guest") on the same channel. */
+    private fun physKey(a: WifiScanner.Ap): String {
+        val b = a.bssid.lowercase()
+        return (if (b.length >= 17) b.substring(0, 14) else b) + "/" + a.channel() + "/" + a.band()
     }
 
     /** Well-mixed 0..359 angle from an id (String.hashCode alone clusters, which made blips pile up on one side). */
@@ -1027,8 +1126,8 @@ class MainActivity : ComponentActivity() {
         while (len <= n) { val ang = -2.0 * PI / len; val wLenR = cos(ang); val wLenI = sin(ang); var i = 0
             while (i < n) { var wr = 1.0; var wi = 0.0; for (k in 0 until len / 2) { val uR = real[i+k]; val uI = imag[i+k]; val vR = real[i+k+len/2]*wr - imag[i+k+len/2]*wi; val vI = real[i+k+len/2]*wi + imag[i+k+len/2]*wr; real[i+k] = uR+vR; imag[i+k] = uI+vI; real[i+k+len/2] = uR-vR; imag[i+k+len/2] = uI-vI; val nr = wr*wLenR-wi*wLenI; wi = wr*wLenI+wi*wLenR; wr = nr }; i += len }; len = len shl 1 }
     }
-    override fun onStop() { if (scanner.scanning) stopRadar(true); if (wifiScanner.scanning) stopWifiRadar(true); super.onStop() }
-    override fun onDestroy() { scanner.stop(); wifiScanner.stop(); stopShield(); super.onDestroy() }
+    override fun onStop() { if (finder.running) stopFinder(); if (scanner.scanning) stopRadar(true); if (wifiScanner.scanning) stopWifiRadar(true); super.onStop() }
+    override fun onDestroy() { finder.stop(); scanner.stop(); wifiScanner.stop(); stopShield(); super.onDestroy() }
 
 
     /**

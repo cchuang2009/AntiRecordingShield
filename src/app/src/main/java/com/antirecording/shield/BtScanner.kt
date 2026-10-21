@@ -46,7 +46,7 @@ class BtScanner(
         private val samples = ArrayDeque<Int>()
         var firstSeen = 0L
         var lastSeen = 0L
-        fun add(rssi: Int, now: Long) { samples.addLast(rssi); while (samples.size > 7) samples.removeFirst(); lastSeen = now }
+        fun add(rssi: Int, now: Long) { samples.addLast(rssi); while (samples.size > 5) samples.removeFirst(); lastSeen = now }
         fun hasRssi() = samples.isNotEmpty()
         fun rssi(): Int { val s = samples.sorted(); return s[s.size / 2] }
     }

@@ -3,32 +3,32 @@
 3    package="com.antirecording.shield.test" >
 4
 5    <uses-sdk
-5-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:5:5-74
+5-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:5:5-74
 6        android:minSdkVersion="26"
-6-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:5:15-41
+6-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:5:15-41
 7        android:targetSdkVersion="36" />
-7-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:5:42-71
+7-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:5:42-71
 8
 9    <instrumentation
-9-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:11:5-15:74
+9-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:11:5-15:74
 10        android:name="android.test.InstrumentationTestRunner"
-10-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:11:22-75
+10-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:11:22-75
 11        android:functionalTest="false"
-11-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:14:22-52
+11-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:14:22-52
 12        android:handleProfiling="false"
-12-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:13:22-53
+12-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:13:22-53
 13        android:label="Tests for com.antirecording.shield"
-13-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:15:22-72
+13-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:15:22-72
 14        android:targetPackage="com.antirecording.shield" />
-14-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:12:22-70
+14-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:12:22-70
 15
 16    <application
-16-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:7:5-9:19
+16-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:7:5-9:19
 17        android:debuggable="true"
 18        android:extractNativeLibs="false" >
 19        <uses-library android:name="android.test.runner" />
-19-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:8:9-60
-19-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.4/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest16924588666665458573.xml:8:23-57
+19-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:8:9-60
+19-->/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.5/AntiRecordingShield/app/build/intermediates/tmp/manifest/androidTest/debug/tempFile1ProcessTestManifest17718634571554356254.xml:8:23-57
 20    </application>
 21
 22</manifest>
