@@ -58,7 +58,7 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
 
 # Project, [src]
    - [AndroidStudio.md](AndroidStudio.md), use/install Cell phone to test
-   - Apk, [AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk]
+   - [Apk](AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk), file: AntiRecordingShield/src/app//build/outputs/apk/debug/app-debug.apk 
 
 # Test Platform
    - Manjaro, Android Studio, 
