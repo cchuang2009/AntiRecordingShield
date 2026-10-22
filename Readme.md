@@ -4,7 +4,7 @@
 
 Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄音與 AI 語音辨識的有效性。
 
-# Versions (last 1.1.5)
+# Versions (last 1.1.7)
 
 - 0.1
   - Kotlin / Android Studio project 專案
