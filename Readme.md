@@ -54,7 +54,16 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
  
 - 1.1.5
   - **New — Direction finder (BLE):** pick a device, turn slowly on the spot for ~20 s; compass + signal strength show where the signal is strongest (about ±30–45°). **新增「找方向」（BLE）：** 選一個裝置，在原地慢慢轉約 20 秒；以羅盤加訊號強度找出訊號最強的方位（約 ±30–45°）。
-  - [New Features](https://github.com/cchuang2009/AntiRecordingShield/blob/main/src/app/src/main/java/com/antirecording/shield/FEATURES.md)
+  
+
+- 1.1.7
+  - Detect suspected devices
+
+# New Features/New Changes  
+
+- [New Features](https://github.com/cchuang2009/AntiRecordingShield/blob/main/src/app/src/main/java/com/antirecording/shield/FEATURES.md)
+
+- [New Changes](https://github.com/cchuang2009/AntiRecordingShield/blob/main/src/app/src/main/java/com/antirecording/shield/CHANGES.md))
 
 # Project, [src]
    - [AndroidStudio.md](AndroidStudio.md), use/install Cell phone to test

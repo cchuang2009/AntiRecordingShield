@@ -455,6 +455,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var finderView: FinderView
     private lateinit var finderStatus: TextView
     private lateinit var finderStop: Button
+    private lateinit var radarAlert: TextView
+    private lateinit var wifiAlert: TextView
     private val finder by lazy { DirectionFinder(this) { refreshFinder() } }
     private lateinit var wifiRange: Button
     private lateinit var cbBle: CheckBox
@@ -519,6 +521,8 @@ class MainActivity : ComponentActivity() {
         c.addView(wifiRadar, LinearLayout.LayoutParams(-1, dp(310)))
         wifiAge = label("", 10f, muted); wifiAge.gravity = Gravity.CENTER_HORIZONTAL
         c.addView(wifiAge, LinearLayout.LayoutParams(-1, -2))
+        wifiAlert = label("", 12f, alertRed, true); wifiAlert.visibility = View.GONE
+        c.addView(wifiAlert, LinearLayout.LayoutParams(-1, -2))
         val opts = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         cbRtt = CheckBox(this).apply { text = "Use Wi-Fi RTT"; isChecked = true; setTextColor(white) }
         wifiEnv = Button(this).apply {
@@ -588,19 +592,24 @@ class MainActivity : ComponentActivity() {
         // one blip per physical radio: virtual SSIDs of one access point (same BSSID except the last byte, same channel) collapse into one
         wifiRadar.setBlips(list.groupBy { physKey(it) }.mapNotNull { (key, group) ->
             val best = group.minByOrNull { wifiScanner.distanceM(it) ?: Double.MAX_VALUE } ?: return@mapNotNull null
-            wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best)) }
+            wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (group.any { SuspectDetector.matchName(it.ssid) != null }) 5 else if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best)) }
         })
         wifiAge.text = wifiScanner.updatedText()
+        updateAlert(wifiAlert, list.filter { SuspectDetector.matchName(it.ssid) != null }.map { "${it.ssid} ${it.bssid}" })
         if (wifiScanner.scanning) wifiStatus.text = "Scanning… ${wifiScanner.remainingSec()} s · ${wifiScanner.summary()}" + (wifiScanner.lastError?.let { " · $it" } ?: "")
-        wifiList.text = if (list.isEmpty()) "" else list.take(15).joinToString("\n") { a ->
+        val groups = list.groupBy { physKey(it) }.values.toList().sortedByDescending { g -> g.any { SuspectDetector.matchName(it.ssid) != null } }       // nearest first; same radio = same BSSID except last byte + channel
+        wifiList.text = if (list.isEmpty()) "" else redizeLines(groups.take(15).joinToString("\n") { g ->
+            val a = g[0]
+            val hit = g.firstOrNull { SuspectDetector.matchName(it.ssid) != null }
             val band = when (a.band()) { 24 -> "2.4G"; 5 -> "5G  "; else -> "6G  " }
             val m = wifiScanner.isMeasured(a)
             val d = wifiScanner.distanceM(a)
             val dist = if (d == null) "   ?   " else if (d > rangeM[rangeIdx]) " >${rangeM[rangeIdx].toInt()} m " else (if (m) " " else "~") + String.format(Locale.US, "%4.1f m", d)
             val rssi = if (a.hasRssi()) "${a.rssi()} dBm" else "-- dBm"
             val extra = listOfNotNull(a.security, if (a.mc) "802.11mc" else null, if (m) String.format(Locale.US, "RTT %.1f±%.1f m", a.rttM, a.rttStdM ?: 0.0) else null).joinToString("  ")
-            "$band ch${a.channel().toString().padEnd(3)} $dist${if (m) "✓" else " "} ${rssi.padStart(8)}  ${a.ssid.ifBlank { "<hidden>" }}\n          ${a.bssid}  $extra"
-        }
+            "${if (hit != null) "⚠ " else ""}$band ch${a.channel().toString().padEnd(3)} $dist${if (m) "✓" else " "} ${rssi.padStart(8)}  ${a.ssid.ifBlank { "<hidden>" }}\n          ${a.bssid}  $extra" + (if (g.size > 1) "\n          +${g.size - 1} more on this radio: " + g.drop(1).joinToString(", ") { it.ssid.ifBlank { "<hidden>" } } else "") +
+                (if (hit != null) "\n          ⚠ SSID looks like a camera/recorder: ${hit.ssid}" else "")
+        })
     }
 
     private fun scanPermissions(): Array<String> =
@@ -615,6 +624,8 @@ class MainActivity : ComponentActivity() {
         c.addView(radar, LinearLayout.LayoutParams(-1, dp(310)))
         radarAge = label("", 10f, muted); radarAge.gravity = Gravity.CENTER_HORIZONTAL
         c.addView(radarAge, LinearLayout.LayoutParams(-1, -2))
+        radarAlert = label("", 12f, alertRed, true); radarAlert.visibility = View.GONE
+        c.addView(radarAlert, LinearLayout.LayoutParams(-1, -2))
         val opts = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
         cbBle = CheckBox(this).apply { text = "BLE"; isChecked = true; setTextColor(white) }
         cbClassic = CheckBox(this).apply { text = "Classic"; isChecked = true; setTextColor(white) }
@@ -749,6 +760,35 @@ class MainActivity : ComponentActivity() {
         return if (t.isBlank()) "" else " [$t]"
     }
 
+    private val alertRed = Color.rgb(255, 77, 109)
+    private val alerted = HashSet<String>()
+    private fun suspectOf(d: BtScanner.Dev): String? = SuspectDetector.matchName(d.name)
+
+    /** Red + bold for every list item whose first line starts with "⚠ " (continuation lines start with spaces). */
+    private fun redizeLines(text: String): CharSequence {
+        val sb = android.text.SpannableStringBuilder()
+        var bad = false
+        text.split("\n").forEachIndexed { i, line ->
+            if (i > 0) sb.append("\n")
+            if (line.startsWith("⚠ ")) bad = true else if (!line.startsWith(" ")) bad = false
+            val s = sb.length
+            sb.append(line)
+            if (bad) {
+                sb.setSpan(android.text.style.ForegroundColorSpan(alertRed), s, sb.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                sb.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), s, sb.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+        return sb
+    }
+
+    /** Red banner under a radar; also writes each newly seen suspicious device to the history once. */
+    private fun updateAlert(tv: TextView, hits: List<String>) {
+        if (hits.isEmpty()) { tv.visibility = View.GONE; return }
+        tv.visibility = View.VISIBLE
+        tv.text = "⚠ ${hits.size} suspicious name(s) · 發現 ${hits.size} 個可疑名稱（疑似攝影機／錄音器）\nA name match is only a hint, check physically · 名稱符合只是線索，請現場確認"
+        for (h in hits) if (alerted.add(h)) addHistory("SUSPECT", "Camera/recorder-like name: $h")
+    }
+
     /** Same radio = same BSSID apart from the last octet (virtual SSIDs such as "Free Wi-Fi" / "Guest") on the same channel. */
     private fun physKey(a: WifiScanner.Ap): String {
         val b = a.bssid.lowercase()
@@ -766,19 +806,21 @@ class MainActivity : ComponentActivity() {
 
     private fun refreshRadar() {
         if (!::radar.isInitialized) return
-        val list = scanner.list(6)    // at most 6 anonymous random-address LE devices (mostly Apple); named / Classic devices always shown
+        val list = scanner.list(6).sortedByDescending { suspectOf(it) != null }    // at most 6 anonymous random-address LE devices (mostly Apple); named / Classic devices always shown
         radar.setBlips(list.mapNotNull { d ->
-            scanner.distanceM(d)?.let { RadarView.Blip(d.address, angleOf(d.address), it, if (d.le && d.classic) 2 else if (d.classic) 1 else 0, false, scanner.ageFrac(d)) }
+            scanner.distanceM(d)?.let { RadarView.Blip(d.address, angleOf(d.address), it, if (suspectOf(d) != null) 5 else if (d.le && d.classic) 2 else if (d.classic) 1 else 0, false, scanner.ageFrac(d)) }
         })
         radarAge.text = scanner.updatedText()
+        updateAlert(radarAlert, list.filter { suspectOf(it) != null }.map { "${it.name} ${it.address}" })
         if (scanner.scanning) radarStatus.text = "Scanning (${scanner.phase()})… ${scanner.remainingSec()} s · ${scanner.summary()}\n${scanner.raw()}" + (if (scanner.hiddenAnon > 0) "\n+${scanner.hiddenAnon} anonymous random-address devices not listed" else "") + (scanner.lastError?.let { "\n$it" } ?: "")
-        radarList.text = if (list.isEmpty()) "" else list.take(15).joinToString("\n") { d ->
+        radarList.text = if (list.isEmpty()) "" else redizeLines(list.take(15).joinToString("\n") { d ->
+            val sus = suspectOf(d) != null
             val kind = if (d.le && d.classic) "LE+BR" else if (d.le) "LE   " else "BR   "
             val dist = scanner.distanceM(d)?.let { if (it > rangeM[rangeIdx]) ">${rangeM[rangeIdx].toInt()} m " else String.format(Locale.US, "%4.1f m", it) } ?: "  ?   "
             val rssi = if (d.hasRssi()) "${d.rssi()} dBm" else "-- dBm"
             val extra = listOfNotNull(d.vendor, d.cls).joinToString("/")
-            "$kind $dist ${rssi.padStart(8)}  ${d.name ?: "Unknown"}${knownLabel(d.address)}\n         ${d.address}${if (extra.isNotEmpty()) "  ($extra)" else ""}"
-        }
+            "${if (sus) "⚠ " else ""}$kind $dist ${rssi.padStart(8)}  ${d.name ?: "Unknown"}${knownLabel(d.address)}\n         ${d.address}${if (extra.isNotEmpty()) "  ($extra)" else ""}${if (sus) "\n         ⚠ name looks like a camera/recorder: ${suspectOf(d)}" else ""}"
+        })
     }
 
     private fun nowStamp(): String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())

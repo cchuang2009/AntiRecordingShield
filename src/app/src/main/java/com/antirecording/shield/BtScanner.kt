@@ -128,7 +128,7 @@ class BtScanner(
     /** Which radio is listening right now. */
     fun phase(): String = if (!scanning) "idle" else if (leCallback != null && classicOn) "BLE+Classic" else if (leCallback != null) "BLE" else if (classicOn) "Classic" else "waiting"
 
-    fun raw(): String = "BLE hits $bleHits · Classic hits $classicHits · inquiries $discoveryRuns" +
+    fun raw(): String = "BLE hits $bleHits · Classic hits $classicHits · unique MACs ${devices.size} (merged ${max(0, bleHits + classicHits - devices.size)} repeats) · inquiries $discoveryRuns" +
         (discoveryStartOk?.let { " (start ${if (it) "ok" else "REFUSED"})" } ?: "") + (bleStartError?.let { " · $it" } ?: "")
 
     /** Devices to show: while scanning only those heard recently, afterwards everything seen in the session. Nearest first. */
@@ -191,7 +191,7 @@ class BtScanner(
         if (wantClassicNow && !classicOn) startClassic(ad) else if (!wantClassicNow && classicOn) stopClassic()
     }
 
-    private fun dev(address: String): Dev = devices.getOrPut(address) { Dev(address).also { it.firstSeen = SystemClock.uptimeMillis() } }
+    private fun dev(address: String): Dev = address.trim().uppercase().let { a -> devices.getOrPut(a) { Dev(a).also { it.firstSeen = SystemClock.uptimeMillis() } } }
 
     @SuppressLint("MissingPermission")
     private fun startLe(ad: BluetoothAdapter) {

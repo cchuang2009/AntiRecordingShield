@@ -1,3 +1,12 @@
+# v1.1.7 (on top of 1.1.6)
+NEW SuspectDetector.kt (keyword match on BT / Wi-Fi names). RadarView: type 5 = red suspect blip + legend. MainActivity: red/bold list rows with ⚠, suspects sorted first, red banner under each radar, history entry once per device. FeatureNotes/FEATURES.md: bilingual 1.1.7 entry.
+
+# v1.1.6 (on top of 1.1.5)
+BtScanner: MAC normalised (trim + upper-case) as the map key; raw() shows unique MACs + merged repeats.
+WifiScanner: BSSID key lower-cased.
+MainActivity: Wi-Fi text list grouped per physical radio with '+N more on this radio'.
+FeatureNotes.kt / FEATURES.md: bilingual 1.1.6 entry (header version now 1.1.6).
+
 # Hush Shield v1.1.4 -> v1.1.5 (radar: less clutter, live movement)
 Drop-in replacements (same package): BtScanner.kt, WifiScanner.kt, RadarView.kt, MainActivity.kt
 

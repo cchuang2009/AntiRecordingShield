@@ -9,6 +9,32 @@ object FeatureNotes {
 
     val releases = listOf(
         Release(
+            "1.1.7",
+            en = listOf(
+                "Suspicious recorder names: Bluetooth and Wi-Fi names that look like a camera or recorder (webcam, IPC, CAM, DVR/NVR, GoPro, dash/body/spy cam, voice recorder ...) are marked ⚠ and listed in RED, first in the list.",
+                "Radar: suspicious devices get a red pulsing blip (always drawn and labelled), a 'Suspect' legend entry and a red banner under the radar; each new one is also written to the history.",
+                "Important: a name match is only a hint. Many hidden cameras advertise no name or no Bluetooth at all, and ordinary devices can have such names. Always check physically."
+            ),
+            zh = listOf(
+                "可疑錄影／錄音名稱：藍牙與 Wi-Fi 名稱像攝影機或錄音器（webcam、IPC、CAM、DVR/NVR、GoPro、行車／隨身／針孔攝影機、錄音筆等）會加上 ⚠ 並以紅色列在清單最前面。",
+                "雷達：可疑裝置顯示紅色脈動圖點（一定會畫出並標示）、圖例新增「Suspect」，雷達下方有紅色提示；每個新發現的也會寫入歷史紀錄。",
+                "重要：名稱符合只是線索。許多針孔攝影機不廣播名稱，甚至完全沒有藍牙；一般裝置也可能取到類似名稱。請務必現場實際檢查。"
+            )
+        ),
+        Release(
+            "1.1.6",
+            en = listOf(
+                "Duplicate control: device addresses (MAC) are normalised, so the same MAC is always counted once; the Bluetooth status shows unique MACs and how many repeated packets were merged.",
+                "Wi-Fi list now shows one row per physical radio; the other SSIDs of that radio are listed underneath instead of as extra rows.",
+                "Note: devices that rotate their random Bluetooth address (e.g. many Apple devices) use a different MAC each time and cannot be merged reliably."
+            ),
+            zh = listOf(
+                "重複控制：裝置位址（MAC）統一格式，相同 MAC 一律只算一個；藍牙狀態列顯示不重複 MAC 數與已合併的重複封包數。",
+                "Wi-Fi 清單改為每個實體無線電只列一行，同一無線電的其他 SSID 列在下方，不再各佔一行。",
+                "注意：會輪換隨機藍牙位址的裝置（例如許多 Apple 裝置）每次使用不同 MAC，無法可靠地合併。"
+            )
+        ),
+        Release(
             "1.1.5",
             en = listOf(
                 "Bluetooth radar: BLE scan + Classic discovery (alternating 12 s slots) with estimated distance from signal strength.",

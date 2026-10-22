@@ -133,7 +133,7 @@ class WifiScanner(
         val now = SystemClock.uptimeMillis(); lastHarvest = now
         val bootUs = SystemClock.elapsedRealtime() * 1000
         for (sr in w.scanResults ?: return) {
-            val bssid = sr.BSSID ?: continue
+            val bssid = sr.BSSID?.trim()?.lowercase() ?: continue
             if ((bootUs - sr.timestamp) / 1_000_000L > 120) continue          // ignore stale cache entries
             if (sr.timestamp > newestTsUs) newestTsUs = sr.timestamp
             val ap = aps.getOrPut(bssid) { Ap(bssid).also { it.firstSeen = now } }

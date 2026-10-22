@@ -19,7 +19,7 @@ import kotlin.math.*
  *  - the ANGLE of a blip is arbitrary (derived from the id): radio signal strength gives no direction.
  */
 class RadarView(context: Context) : View(context) {
-    /** type: 0 BLE, 1 Classic, 2 both, 3 Wi-Fi 2.4 GHz, 4 Wi-Fi 5/6 GHz.  measured = real ranging (Wi-Fi RTT).  ageFrac: 0 fresh .. 1 stale. */
+    /** type: 0 BLE, 1 Classic, 2 both, 3 Wi-Fi 2.4 GHz, 4 Wi-Fi 5/6 GHz, 5 SUSPICIOUS (red).  measured = real ranging (Wi-Fi RTT).  ageFrac: 0 fresh .. 1 stale. */
     class Blip(val id: String, val angleDeg: Float, val distM: Double, val type: Int, val measured: Boolean = false, val ageFrac: Float = 0f)
     /** false = Bluetooth legend, true = Wi-Fi legend */
     var wifiMode = false
@@ -35,6 +35,7 @@ class RadarView(context: Context) : View(context) {
     private val green = Color.rgb(110, 232, 140)
     private val yellow = Color.rgb(240, 226, 104)
     private val muted = Color.rgb(164, 187, 212)
+    private val red = Color.rgb(255, 77, 109)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
     private var all: List<Blip> = emptyList()
@@ -68,7 +69,7 @@ class RadarView(context: Context) : View(context) {
     }
 
     private fun applyBlips() {
-        val sorted = all.sortedBy { it.distM }
+        val sorted = all.sortedWith(compareBy({ it.type != 5 }, { it.distM }))      // suspicious (type 5) first: never dropped by the caps
         val near = sorted.filter { it.distM <= maxM }.take(maxBlips)
         val far = sorted.filter { it.distM > maxM }.take(maxFar)
         blips = near + far
@@ -120,7 +121,7 @@ class RadarView(context: Context) : View(context) {
         val now = SystemClock.uptimeMillis()
         val dt = if (lastFrame == 0L) 16L else (now - lastFrame).coerceIn(1L, 100L); lastFrame = now
         val k = 1.0 - exp(-dt / 250.0)                       // ~250 ms glide toward the newest distance
-        val sorted = blips.sortedBy { it.distM }
+        val sorted = blips.sortedWith(compareBy({ it.type != 5 }, { it.distM }))   // suspicious first so they get a label
         val used = ArrayList<RectF>(); var labels = 0
         sorted.forEachIndexed { idx, b ->
             val cur = shown[b.id] ?: b.distM
@@ -128,7 +129,7 @@ class RadarView(context: Context) : View(context) {
             shown[b.id] = dd
             val rr = r * frac(dd); val a = Math.toRadians(b.angleDeg.toDouble())
             val x = cx + (rr * cos(a)).toFloat(); val y = cy + (rr * sin(a)).toFloat()
-            val col = when (b.type) { 0 -> cyan; 1 -> amber; 2 -> violet; 3 -> green; else -> yellow }
+            val col = when (b.type) { 0 -> cyan; 1 -> amber; 2 -> violet; 3 -> green; 5 -> red; else -> yellow }
             val fade = 1f - 0.8f * b.ageFrac.coerceIn(0f, 1f)
             val glow = if (scanning) { val since = ((sweep - b.angleDeg) % 360f + 360f) % 360f; (1f - since / 300f).coerceIn(0f, 1f) } else 0.6f
             val far = b.distM > maxM
@@ -143,9 +144,14 @@ class RadarView(context: Context) : View(context) {
                 paint.style = Paint.Style.STROKE; paint.strokeWidth = dp(1.5f); paint.color = Color.argb(((1f - t) * 200).toInt(), Color.red(col), Color.green(col), Color.blue(col))
                 canvas.drawCircle(x, y, dp(6f) + t * dp(30f), paint)
             }
+            if (b.type == 5) {      // pulsing red ring around a suspicious device
+                val ph = (now % 1200L) / 1200f
+                paint.style = Paint.Style.STROKE; paint.strokeWidth = dp(1.8f); paint.color = Color.argb(((1f - ph) * 230).toInt(), 255, 77, 109)
+                canvas.drawCircle(x, y, dp(8f) + ph * dp(10f), paint)
+            }
             if (b.measured) { paint.style = Paint.Style.STROKE; paint.strokeWidth = dp(1.6f); paint.color = Color.WHITE; canvas.drawCircle(x, y, dp(8f), paint) }
             if (labels < maxLabels && fade > 0.35f) {
-                val label = if (far) ">${maxM.toInt()} m" else (if (b.measured) "" else "~") + fmt(dd) + (if (b.measured) " ✓" else "")
+                val label = (if (b.type == 5) "⚠ " else "") + (if (far) ">${maxM.toInt()} m" else (if (b.measured) "" else "~") + fmt(dd) + (if (b.measured) " ✓" else ""))
                 text.textSize = sp(9f)
                 val w = text.measureText(label) / 2f + dp(2f)
                 val box = RectF(x - w, y - dp(11f) - sp(9f), x + w, y - dp(11f) + dp(2f))
@@ -164,13 +170,15 @@ class RadarView(context: Context) : View(context) {
         text.textSize = sp(10f)
         val ly = height - dp(4f)
         if (wifiMode) {
-            text.color = green; canvas.drawText("● 2.4 GHz", cx - dp(74f), ly, text)
-            text.color = yellow; canvas.drawText("● 5/6 GHz", cx, ly, text)
-            text.color = Color.WHITE; canvas.drawText("◎ ✓ RTT", cx + dp(74f), ly, text)
+            text.color = green; canvas.drawText("● 2.4 GHz", cx - dp(111f), ly, text)
+            text.color = yellow; canvas.drawText("● 5/6 GHz", cx - dp(37f), ly, text)
+            text.color = Color.WHITE; canvas.drawText("◎ ✓ RTT", cx + dp(37f), ly, text)
+            text.color = red; canvas.drawText("● Suspect", cx + dp(111f), ly, text)
         } else {
-            text.color = cyan; canvas.drawText("● BLE", cx - dp(70f), ly, text)
-            text.color = amber; canvas.drawText("● Classic", cx, ly, text)
-            text.color = violet; canvas.drawText("● Both", cx + dp(70f), ly, text)
+            text.color = cyan; canvas.drawText("● BLE", cx - dp(111f), ly, text)
+            text.color = amber; canvas.drawText("● Classic", cx - dp(37f), ly, text)
+            text.color = violet; canvas.drawText("● Both", cx + dp(37f), ly, text)
+            text.color = red; canvas.drawText("● Suspect", cx + dp(111f), ly, text)
         }
         if (!scanning && blips.isEmpty()) { text.textSize = sp(12f); text.color = muted; canvas.drawText("Tap Start scan", cx, cy + r * 0.45f, text) }
     }
