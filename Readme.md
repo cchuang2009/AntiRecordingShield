@@ -4,7 +4,7 @@
 
 Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄音與 AI 語音辨識的有效性。
 
-# Versions (last 1.1.7)
+# Versions (last 1.2.0)
 
 - 0.1
   - Kotlin / Android Studio project 專案
@@ -58,6 +58,11 @@ Mask Sound for hidden recording device and AI recognition, 降低附近裝置錄
 
 - 1.1.7
   - Detect suspected devices
+
+- 1.2.0
+  -   [Room check] and export result in pdf/image, 「房間檢查」報告，匯出 PDF 或圖片
+  - Scan Lan Camera, 區網攝影機掃描
+  - Len and IR finder, 手電筒找鏡頭反光、前鏡頭看紅外線燈的輔助檢查
 
 # New Features/New Changes  
 

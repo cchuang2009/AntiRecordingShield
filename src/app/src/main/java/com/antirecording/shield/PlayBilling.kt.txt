@@ -1,0 +1,54 @@
+// DISABLED SKELETON - rename to PlayBilling.kt only after you:
+//  1) add   implementation("com.android.billingclient:billing-ktx:7.+")   (check the current 7.x/8.x API - method names change between majors)
+//  2) create a subscription in Play Console with PRODUCT_ID below and a base plan + offer
+//  3) wire it:  in MainActivity.onCreate:  val pb = PlayBilling(this) { active -> Pro.setPro(this, active); refreshProStatus() }
+//               pb.connect();  Pro.buyHook = { pb.launch() };  Pro.restoreHook = { pb.restore() }
+//  4) set Pro.ENFORCE = true for the store build.
+// NOT compiled or tested. A client-side flag can be tampered with; for stronger protection verify purchases on a server.
+package com.antirecording.shield
+
+import android.app.Activity
+import com.android.billingclient.api.*
+
+class PlayBilling(private val act: Activity, private val onEntitlement: (Boolean) -> Unit) : PurchasesUpdatedListener {
+    companion object { const val PRODUCT_ID = "hush_pro_monthly" }
+
+    private val client = BillingClient.newBuilder(act).setListener(this)
+        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()).build()
+    private var details: ProductDetails? = null
+
+    fun connect() {
+        client.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(r: BillingResult) { if (r.responseCode == BillingClient.BillingResponseCode.OK) { queryDetails(); restore() } }
+            override fun onBillingServiceDisconnected() {}
+        })
+    }
+
+    private fun queryDetails() {
+        val p = QueryProductDetailsParams.Product.newBuilder().setProductId(PRODUCT_ID).setProductType(BillingClient.ProductType.SUBS).build()
+        client.queryProductDetailsAsync(QueryProductDetailsParams.newBuilder().setProductList(listOf(p)).build()) { _, list -> details = list.firstOrNull() }
+    }
+
+    fun launch() {
+        val d = details ?: return
+        val offer = d.subscriptionOfferDetails?.firstOrNull() ?: return
+        val pdp = BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(d).setOfferToken(offer.offerToken).build()
+        client.launchBillingFlow(act, BillingFlowParams.newBuilder().setProductDetailsParamsList(listOf(pdp)).build())
+    }
+
+    fun restore() {
+        client.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()) { _, purchases -> handle(purchases) }
+    }
+
+    override fun onPurchasesUpdated(r: BillingResult, purchases: MutableList<Purchase>?) {
+        if (r.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) handle(purchases)
+    }
+
+    private fun handle(list: List<Purchase>) {
+        val mine = list.filter { it.products.contains(PRODUCT_ID) && it.purchaseState == Purchase.PurchaseState.PURCHASED }
+        mine.filter { !it.isAcknowledged }.forEach {
+            client.acknowledgePurchase(AcknowledgePurchaseParams.newBuilder().setPurchaseToken(it.purchaseToken).build()) { }
+        }
+        act.runOnUiThread { onEntitlement(mine.isNotEmpty()) }
+    }
+}

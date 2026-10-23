@@ -84,8 +84,8 @@ class BtScanner(
     /** @return an error message, or null when the scan has started. */
     @SuppressLint("MissingPermission")
     fun start(durationMs: Long, ble: Boolean, classic: Boolean, pathLossN: Double): String? {
-        val ad = adapter() ?: return "This device has no Bluetooth."
-        if (!ad.isEnabled) return "Bluetooth is off. Turn it on in Android settings, then try again."
+        val ad = adapter() ?: return L.t("This device has no Bluetooth.", "此裝置沒有藍牙。")
+        if (!ad.isEnabled) return L.t("Bluetooth is off. Turn it on in Android settings, then try again.", "藍牙未開啟。請先在 Android 設定開啟藍牙再試一次。")
         stop()
         devices.clear(); lastError = null; bleStartError = null; discoveryStartOk = null
         bleHits = 0; classicHits = 0; discoveryRuns = 0; lastLeAt = 0L; lastClassicAt = 0L
@@ -98,7 +98,7 @@ class BtScanner(
                 receiverRegistered = true
             }
             syncPhase()
-        } catch (e: SecurityException) { stop(); return "Bluetooth scan permission is missing." }
+        } catch (e: SecurityException) { stop(); return L.t("Bluetooth scan permission is missing.", "缺少藍牙掃描權限。") }
         handler.postDelayed(tick, 500)
         return null
     }
@@ -117,19 +117,19 @@ class BtScanner(
     fun updatedText(): String {
         if (!scanning) return ""
         val now = SystemClock.uptimeMillis()
-        fun ago(t: Long) = if (t == 0L) "no data yet" else "${(now - t) / 1000} s ago"
+        fun ago(t: Long) = if (t == 0L) L.t("no data yet", "尚無資料") else L.t("${(now - t) / 1000} s ago", "${(now - t) / 1000} 秒前")
         val parts = ArrayList<String>()
         if (wantBle) parts.add("BLE ${ago(lastLeAt)}")
-        if (wantClassic) parts.add("Classic ${ago(lastClassicAt)}")
-        val ph = if (wantBle && wantClassic) " (listening: ${phase()})" else ""
-        return "Last updated: " + parts.joinToString(" · ") + ph
+        if (wantClassic) parts.add(L.t("Classic", "傳統藍牙") + " ${ago(lastClassicAt)}")
+        val ph = if (wantBle && wantClassic) L.t(" (listening: ${phase()})", "（目前聆聽：${phase()}）") else ""
+        return L.t("Last updated: ", "最後更新：") + parts.joinToString(" · ") + ph
     }
 
     /** Which radio is listening right now. */
-    fun phase(): String = if (!scanning) "idle" else if (leCallback != null && classicOn) "BLE+Classic" else if (leCallback != null) "BLE" else if (classicOn) "Classic" else "waiting"
+    fun phase(): String = if (!scanning) L.t("idle", "閒置") else if (leCallback != null && classicOn) "BLE+Classic" else if (leCallback != null) "BLE" else if (classicOn) "Classic" else L.t("waiting", "等待中")
 
-    fun raw(): String = "BLE hits $bleHits · Classic hits $classicHits · unique MACs ${devices.size} (merged ${max(0, bleHits + classicHits - devices.size)} repeats) · inquiries $discoveryRuns" +
-        (discoveryStartOk?.let { " (start ${if (it) "ok" else "REFUSED"})" } ?: "") + (bleStartError?.let { " · $it" } ?: "")
+    fun raw(): String = L.t("BLE hits $bleHits · Classic hits $classicHits · unique MACs ${devices.size} (merged ${max(0, bleHits + classicHits - devices.size)} repeats) · inquiries $discoveryRuns", "BLE 命中 $bleHits · 傳統命中 $classicHits · 不重複 MAC ${devices.size}（已合併 ${max(0, bleHits + classicHits - devices.size)} 筆重複）· 搜尋次數 $discoveryRuns") +
+        (discoveryStartOk?.let { L.t(" (start ${if (it) "ok" else "REFUSED"})", " （啟動${if (it) "成功" else "被拒絕"}）") } ?: "") + (bleStartError?.let { " · $it" } ?: "")
 
     /** Devices to show: while scanning only those heard recently, afterwards everything seen in the session. Nearest first. */
     fun list(maxAnon: Int = Int.MAX_VALUE): List<Dev> {
@@ -168,14 +168,14 @@ class BtScanner(
     fun summary(): String {
         val all = devices.values
         val nearest = all.mapNotNull { distanceM(it) }.minOrNull()
-        return "BLE ${all.count { it.le }} · Classic ${all.count { it.classic }}" + (nearest?.let { " · nearest ≈ " + String.format(java.util.Locale.US, "%.1f m", it) } ?: "")
+        return L.t("BLE ${all.count { it.le }} · Classic ${all.count { it.classic }}", "BLE ${all.count { it.le }} · 傳統 ${all.count { it.classic }}") + (nearest?.let { L.t(" · nearest ≈ ", " · 最近 ≈ ") + String.format(java.util.Locale.US, "%.1f m", it) } ?: "")
     }
 
     private val tick = object : Runnable {
         override fun run() {
             if (!scanning) return
-            if (SystemClock.uptimeMillis() >= endAt) { stop(); onFinished("Scan complete"); return }
-            try { syncPhase() } catch (_: SecurityException) { lastError = "Bluetooth permission was revoked" }
+            if (SystemClock.uptimeMillis() >= endAt) { stop(); onFinished(L.t("Scan complete", "掃描完成")); return }
+            try { syncPhase() } catch (_: SecurityException) { lastError = L.t("Bluetooth permission was revoked", "藍牙權限已被撤銷") }
             onChange(); handler.postDelayed(this, 500)
         }
     }
@@ -195,11 +195,11 @@ class BtScanner(
 
     @SuppressLint("MissingPermission")
     private fun startLe(ad: BluetoothAdapter) {
-        val sc = ad.bluetoothLeScanner ?: run { bleStartError = "BLE scanner unavailable"; return }
+        val sc = ad.bluetoothLeScanner ?: run { bleStartError = L.t("BLE scanner unavailable", "BLE 掃描器無法使用"); return }
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) { handleLe(result) }
             override fun onBatchScanResults(results: MutableList<ScanResult>) { results.forEach { handleLe(it) } }
-            override fun onScanFailed(errorCode: Int) { bleStartError = "BLE scan failed (code $errorCode)"; leCallback = null; onChange() }
+            override fun onScanFailed(errorCode: Int) { bleStartError = L.t("BLE scan failed (code $errorCode)", "BLE 掃描失敗（代碼 $errorCode）"); leCallback = null; onChange() }
         }
         leCallback = cb
         try {
@@ -237,7 +237,7 @@ class BtScanner(
         classicOn = true; discoveryRuns++
         val ok = ad.startDiscovery()
         discoveryStartOk = ok
-        if (!ok) { lastError = "Classic discovery was refused by Android (permission or Location off?)"; classicOn = false }
+        if (!ok) { lastError = L.t("Classic discovery was refused by Android (permission or Location off?)", "Android 拒絕了傳統藍牙搜尋（權限不足或定位未開？）"); classicOn = false }
     }
 
     @SuppressLint("MissingPermission")
@@ -278,15 +278,15 @@ class BtScanner(
     }
 
     private fun classLabel(major: Int?): String? = when (major) {
-        BluetoothClass.Device.Major.PHONE -> "phone"
-        BluetoothClass.Device.Major.COMPUTER -> "computer"
-        BluetoothClass.Device.Major.AUDIO_VIDEO -> "audio/video"
-        BluetoothClass.Device.Major.WEARABLE -> "wearable"
-        BluetoothClass.Device.Major.PERIPHERAL -> "peripheral"
-        BluetoothClass.Device.Major.HEALTH -> "health"
-        BluetoothClass.Device.Major.IMAGING -> "imaging"
-        BluetoothClass.Device.Major.NETWORKING -> "networking"
-        BluetoothClass.Device.Major.TOY -> "toy"
+        BluetoothClass.Device.Major.PHONE -> L.t("phone", "手機")
+        BluetoothClass.Device.Major.COMPUTER -> L.t("computer", "電腦")
+        BluetoothClass.Device.Major.AUDIO_VIDEO -> L.t("audio/video", "影音")
+        BluetoothClass.Device.Major.WEARABLE -> L.t("wearable", "穿戴裝置")
+        BluetoothClass.Device.Major.PERIPHERAL -> L.t("peripheral", "周邊")
+        BluetoothClass.Device.Major.HEALTH -> L.t("health", "健康")
+        BluetoothClass.Device.Major.IMAGING -> L.t("imaging", "影像")
+        BluetoothClass.Device.Major.NETWORKING -> L.t("networking", "網路")
+        BluetoothClass.Device.Major.TOY -> L.t("toy", "玩具")
         else -> null
     }
 

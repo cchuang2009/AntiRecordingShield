@@ -37,7 +37,17 @@
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
-
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Lens & IR finder -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- ONLY for the optional camera-maker database download -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- find the Wi-Fi network for the LAN scan -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" /> <!-- ONVIF discovery -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="true" />

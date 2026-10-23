@@ -79,25 +79,25 @@ class DirectionFinder(private val ctx: Context, private val onChange: () -> Unit
     @SuppressLint("MissingPermission")
     fun start(address: String, name: String): String? {
         stop()
-        val ad = ctx.getSystemService(BluetoothManager::class.java)?.adapter ?: return "This device has no Bluetooth."
-        if (!ad.isEnabled) return "Bluetooth is off. Turn it on in Android settings, then try again."
+        val ad = ctx.getSystemService(BluetoothManager::class.java)?.adapter ?: return L.t("This device has no Bluetooth.", "此裝置沒有藍牙。")
+        if (!ad.isEnabled) return L.t("Bluetooth is off. Turn it on in Android settings, then try again.", "藍牙未開啟。請先在 Android 設定開啟藍牙再試一次。")
         val sm = ctx.getSystemService(SensorManager::class.java)
-        val rv = sm?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) ?: return "This phone has no compass / rotation sensor."
-        val sc = ad.bluetoothLeScanner ?: return "BLE scanner unavailable."
+        val rv = sm?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) ?: return L.t("This phone has no compass / rotation sensor.", "此手機沒有羅盤／旋轉感測器。")
+        val sc = ad.bluetoothLeScanner ?: return L.t("BLE scanner unavailable.", "BLE 掃描器無法使用。")
         java.util.Arrays.fill(mean, 0.0); java.util.Arrays.fill(cnt, 0)
         samples = 0; liveRssi = null; lastPacketAt = 0L; error = null; heading = Float.NaN; haveHeading = false
         targetAddress = address; targetName = name
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) { record(result.rssi) }
             override fun onBatchScanResults(results: MutableList<ScanResult>) { results.forEach { record(it.rssi) } }
-            override fun onScanFailed(errorCode: Int) { error = "BLE scan failed (code $errorCode)"; onChange() }
+            override fun onScanFailed(errorCode: Int) { error = L.t("BLE scan failed (code $errorCode)", "BLE 掃描失敗（代碼 $errorCode）"); onChange() }
         }
         cb = callback
         try {
             sc.startScan(listOf(ScanFilter.Builder().setDeviceAddress(address).build()),
                 ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(), callback)
-        } catch (e: SecurityException) { cb = null; return "Bluetooth scan permission is missing." }
-        catch (e: IllegalArgumentException) { cb = null; return "Invalid device address." }
+        } catch (e: SecurityException) { cb = null; return L.t("Bluetooth scan permission is missing.", "缺少藍牙掃描權限。") }
+        catch (e: IllegalArgumentException) { cb = null; return L.t("Invalid device address.", "裝置位址無效。") }
         sensorMgr = sm
         sm.registerListener(sensorListener, rv, SensorManager.SENSOR_DELAY_GAME)
         startedAt = SystemClock.uptimeMillis(); running = true
@@ -120,7 +120,7 @@ class DirectionFinder(private val ctx: Context, private val onChange: () -> Unit
     private val tick = object : Runnable {
         override fun run() {
             if (!running) return
-            if (SystemClock.uptimeMillis() - startedAt > MAX_MS) { stop(); error = "Stopped automatically after 3 minutes."; onChange(); return }
+            if (SystemClock.uptimeMillis() - startedAt > MAX_MS) { stop(); error = L.t("Stopped automatically after 3 minutes.", "已在 3 分鐘後自動停止。"); onChange(); return }
             onChange(); handler.postDelayed(this, 150)
         }
     }

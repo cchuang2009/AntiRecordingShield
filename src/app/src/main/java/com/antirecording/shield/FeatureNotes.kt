@@ -9,6 +9,68 @@ object FeatureNotes {
 
     val releases = listOf(
         Release(
+            "1.2.0",
+            en = listOf(
+                "New 'Room check' tab: one tap scans Bluetooth and Wi-Fi (optionally your LAN), gives a verdict (needs attention / worth checking / no obvious signs) and exports a PDF report with a physical-inspection checklist.",
+                "LAN camera scan: finds devices on the Wi-Fi you are connected to that behave like IP cameras or recorders (RTSP, ONVIF, camera web pages, service ports). It never logs in or reads video, scans one /24 at most and asks for confirmation first.",
+                "Camera-maker database: downloads the public IEEE list on request and flags Wi-Fi and Bluetooth (Classic) addresses made by camera companies.",
+                "Lens & IR finder: uses the camera as a visual aid - flash mode circles glints that appear only while the torch is on, IR mode shows infrared LEDs in a dim room. Nothing is saved or sent.",
+                "Known devices: 'Mark as known' buttons under both radars; devices you mark are no longer flagged red.",
+                "Direction finder: optional proximity beeps - the stronger the signal, the faster the beeps.",
+                "Pro structure: free/paid split and paywall are ready (all features stay unlocked in this build); a Play Billing skeleton is included but disabled.",
+                "Reminder: everything here gives hints only. A camera that is off, has no radio, or records to a memory card cannot be found by radio scanning."
+            ),
+            zh = listOf(
+                "新增「房間檢查」分頁：一鍵掃描藍牙與 Wi-Fi（可選擇再掃描區網），給出結論（需要留意／值得檢查／沒有明顯跡象），並匯出附實地檢查清單的 PDF 報告。",
+                "區網攝影機掃描：找出您目前連線的 Wi-Fi 上、行為像網路攝影機或錄影機的裝置（RTSP、ONVIF、攝影機網頁、服務埠）。不會登入也不會讀取影像，最多掃描一個 /24 網段，且會先請您確認。",
+                "攝影機廠商資料庫：依需求從公開的 IEEE 清單下載，標出由攝影機製造商生產的 Wi-Fi 與藍牙（傳統）位址。",
+                "鏡頭與紅外線輔助：用相機做視覺輔助——閃光模式圈出只在手電筒亮時才出現的反光，紅外線模式在昏暗房間顯示紅外線燈。不會儲存或傳送任何影像。",
+                "已知裝置：兩個雷達下方新增「標記為已知」按鈕；您標記的裝置不會再以紅色標示。",
+                "找方向：新增可選的接近提示音——訊號越強，嗶聲越快。",
+                "Pro 架構：免費／付費分級與付費牆已就緒（此版本所有功能仍全部解鎖）；附上預設停用的 Google Play 付款範本。",
+                "提醒：以上都只是線索。已關閉、沒有無線電、或只錄到記憶卡的攝影機，無法用無線電掃描找出。"
+            )
+        ),
+        Release(
+            "1.1.10",
+            en = listOf(
+                "Full Chinese translation: all screens, buttons, hints, permission messages, scan notes, error messages and the sound-shield texts now follow the language setting (Auto / English / 中文).",
+                "Wi-Fi radar help text corrected: normal mode refreshes about every 30 s (it said 20 s).",
+                "Kept in English on purpose: the saved event history / CSV records, technical tags (WIFI, BT_RADAR ...), snapshot data, and standard terms such as BLE, RSSI, RTT, WPA2."
+            ),
+            zh = listOf(
+                "全面中文化：所有畫面、按鈕、提示、權限訊息、掃描說明、錯誤訊息與聲音護盾文字，現在都會依語言設定（自動／English／中文）顯示。",
+                "修正 Wi-Fi 雷達說明：一般模式約每 30 秒更新一次（之前寫 20 秒）。",
+                "刻意保留英文：已儲存的事件紀錄／CSV、技術標籤（WIFI、BT_RADAR 等）、快照資料，以及 BLE、RSSI、RTT、WPA2 等通用術語。"
+            )
+        ),
+        Release(
+            "1.1.9",
+            en = listOf(
+                "Language: the new texts (suspicious-device alerts, direction finder, 'last updated' lines, radar legend, Features card) now follow the phone's language - Chinese phones show Chinese, others English.",
+                "Language button in the Features card: Auto / English / 中文 (the screen reloads).",
+                "Still to translate: the older English-only screens and buttons; they stay in English for now."
+            ),
+            zh = listOf(
+                "語言：新增的文字（可疑裝置警示、找方向、「最後更新」、雷達圖例、功能卡）現在會依手機語言顯示 — 中文手機顯示中文，其他顯示英文。",
+                "功能卡內新增語言按鈕：自動／English／中文（切換後畫面會重新載入）。",
+                "尚未翻譯：較早期的純英文畫面與按鈕，目前仍維持英文。"
+            )
+        ),
+        Release(
+            "1.1.8",
+            en = listOf(
+                "Better duplicate removal for Wi-Fi: a hidden / guest / virtual BSSID of the same radio is now merged with its named network even when the first byte differs (locally-administered bit), as long as band + channel match, signals are within 6 dB and the MACs are nearly identical.",
+                "Each Wi-Fi row shows the named SSID first with '+N more on this radio'; the status line adds 'radios N' next to the BSSID count.",
+                "Heuristic: two different access points of the same make on the same channel with similar signal could occasionally be merged."
+            ),
+            zh = listOf(
+                "Wi-Fi 重複去除更準：同一個無線電的隱藏／訪客／虛擬 BSSID，即使第一個位元組不同（本地管理位元），只要頻段與頻道相同、訊號差在 6 dB 內、MAC 幾乎相同，就會和有名稱的網路合併成一行。",
+                "每一行優先顯示有名稱的 SSID，其餘列為「+N more on this radio」；狀態列在 BSSID 數量旁新增「radios N」。",
+                "這是推測式合併：同品牌、同頻道、訊號相近的兩台不同基地台，偶爾可能被誤合併。"
+            )
+        ),
+        Release(
             "1.1.7",
             en = listOf(
                 "Suspicious recorder names: Bluetooth and Wi-Fi names that look like a camera or recorder (webcam, IPC, CAM, DVR/NVR, GoPro, dash/body/spy cam, voice recorder ...) are marked ⚠ and listed in RED, first in the list.",

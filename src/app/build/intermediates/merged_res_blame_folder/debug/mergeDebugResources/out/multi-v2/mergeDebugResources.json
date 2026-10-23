@@ -548,23 +548,6 @@
                     }
                 },
                 {
-                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/v-1.1.7/AntiRecordingShield/app/src/main/res/values/strings.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "48",
-                        "endOffsets": "99"
-                    },
-                    "to": {
-                        "startLines": "94",
-                        "startColumns": "4",
-                        "startOffsets": "5615",
-                        "endColumns": "48",
-                        "endOffsets": "5659"
-                    }
-                },
-                {
                     "source": "/home/cchuang/.gradle/caches/8.13/transforms/02df8924de42ea0ffc62bc78a6af2284/transformed/startup-runtime-1.1.1/res/values/values.xml",
                     "from": {
                         "startLines": "2",
@@ -630,6 +613,23 @@
                         "startOffsets": "5255",
                         "endColumns": "42",
                         "endOffsets": "5293"
+                    }
+                },
+                {
+                    "source": "/home/cchuang/Downloads/2026/GoogleStudio/v-1.2.0/AntiRecordingShield/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    },
+                    "to": {
+                        "startLines": "94",
+                        "startColumns": "4",
+                        "startOffsets": "5615",
+                        "endColumns": "48",
+                        "endOffsets": "5659"
                     }
                 },
                 {

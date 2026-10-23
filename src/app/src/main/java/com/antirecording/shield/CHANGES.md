@@ -1,3 +1,18 @@
+# v1.2.0 (on top of 1.1.10) - roadmap items 1-7
+NEW files: RoomCheck.kt (orchestrator + ReportPdf), LanScanner.kt, LensFinder.kt, OuiDb.kt, RadioCluster.kt, Beeper.kt, Pro.kt, PlayBilling.kt.txt (disabled), MANIFEST_ADDITIONS.md
+MainActivity: 5th tab 'Room check' (scrollable tab row), mark-as-known buttons, known-aware suspect checks (name OR camera-maker prefix), proximity beeps, cluster code moved to RadioCluster.
+Needs the manifest additions (CAMERA, INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_WIFI_MULTICAST_STATE) - see MANIFEST_ADDITIONS.md.
+NOT compiled or run on a device.
+
+# v1.1.10 (on top of 1.1.9)
+Full translation pass: ~180 UI strings in MainActivity + 23 in BtScanner + 9 in WifiScanner wrapped in L.t(en, zh). envName became a getter (not a class-level initializer, so the language setting applies). History details/tags/data records intentionally left English. Wi-Fi help text: 20 s -> 30 s.
+
+# v1.1.9 (on top of 1.1.8)
+NEW L.kt (Auto/English/中文, L.t(en, zh)). Converted: finder, suspect alerts, updatedText (Bt/Wi-Fi), DirectionFinder errors, RadarView/FinderView labels, Features card (active language only + language button), the 6 Chinese sound-shield strings (now bilingual). ~285 older English strings in MainActivity are NOT yet translated.
+
+# v1.1.8 (on top of 1.1.7)
+MainActivity: physKey replaced by clusterRadios()/macBits()/clusterKey(): hidden/guest BSSIDs merged by band+channel, <=6 dB, <=8 differing MAC bits (locally-administered bit ignored); named SSID first; status shows 'radios N'. FeatureNotes/FEATURES.md: bilingual 1.1.8.
+
 # v1.1.7 (on top of 1.1.6)
 NEW SuspectDetector.kt (keyword match on BT / Wi-Fi names). RadarView: type 5 = red suspect blip + legend. MainActivity: red/bold list rows with ⚠, suspects sorted first, red banner under each radar, history entry once per device. FeatureNotes/FEATURES.md: bilingual 1.1.7 entry.
 

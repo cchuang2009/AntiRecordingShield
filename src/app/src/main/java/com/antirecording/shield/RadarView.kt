@@ -165,7 +165,7 @@ class RadarView(context: Context) : View(context) {
         // centre = this phone
         paint.style = Paint.Style.FILL; paint.color = Color.WHITE; canvas.drawCircle(cx, cy, dp(4f), paint)
         paint.style = Paint.Style.STROKE; paint.strokeWidth = dp(1.5f); paint.color = Color.argb(160, 255, 255, 255); canvas.drawCircle(cx, cy, dp(8f), paint)
-        if (hiddenCount > 0) { text.textSize = sp(10f); text.color = muted; canvas.drawText("+$hiddenCount more not drawn", cx, dp(12f), text) }
+        if (hiddenCount > 0) { text.textSize = sp(10f); text.color = muted; canvas.drawText(L.t("+$hiddenCount more not drawn", "另有 $hiddenCount 個未繪出"), cx, dp(12f), text) }
         // legend
         text.textSize = sp(10f)
         val ly = height - dp(4f)
@@ -173,14 +173,14 @@ class RadarView(context: Context) : View(context) {
             text.color = green; canvas.drawText("● 2.4 GHz", cx - dp(111f), ly, text)
             text.color = yellow; canvas.drawText("● 5/6 GHz", cx - dp(37f), ly, text)
             text.color = Color.WHITE; canvas.drawText("◎ ✓ RTT", cx + dp(37f), ly, text)
-            text.color = red; canvas.drawText("● Suspect", cx + dp(111f), ly, text)
+            text.color = red; canvas.drawText("● ${L.t("Suspect", "可疑")}", cx + dp(111f), ly, text)
         } else {
             text.color = cyan; canvas.drawText("● BLE", cx - dp(111f), ly, text)
-            text.color = amber; canvas.drawText("● Classic", cx - dp(37f), ly, text)
-            text.color = violet; canvas.drawText("● Both", cx + dp(37f), ly, text)
-            text.color = red; canvas.drawText("● Suspect", cx + dp(111f), ly, text)
+            text.color = amber; canvas.drawText("● ${L.t("Classic", "傳統")}", cx - dp(37f), ly, text)
+            text.color = violet; canvas.drawText("● ${L.t("Both", "兩者")}", cx + dp(37f), ly, text)
+            text.color = red; canvas.drawText("● ${L.t("Suspect", "可疑")}", cx + dp(111f), ly, text)
         }
-        if (!scanning && blips.isEmpty()) { text.textSize = sp(12f); text.color = muted; canvas.drawText("Tap Start scan", cx, cy + r * 0.45f, text) }
+        if (!scanning && blips.isEmpty()) { text.textSize = sp(12f); text.color = muted; canvas.drawText(L.t("Tap Start scan", "點「開始掃描」"), cx, cy + r * 0.45f, text) }
     }
 
     private fun fmt(d: Double) = if (d < 10) String.format(java.util.Locale.US, "%.1f m", d) else String.format(java.util.Locale.US, "%d m", d.roundToInt())

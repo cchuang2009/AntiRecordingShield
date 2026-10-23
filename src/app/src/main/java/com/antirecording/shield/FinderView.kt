@@ -85,6 +85,6 @@ class FinderView(context: Context) : View(context) {
         paint.style = Paint.Style.FILL; paint.color = Color.rgb(8, 24, 45); canvas.drawCircle(cx, cy, dp(30f), paint)
         text.textSize = sp(11f); text.color = Color.WHITE
         canvas.drawText(centerText, cx, cy + dp(4f), text)
-        if (vals.isEmpty()) { text.textSize = sp(12f); text.color = muted; canvas.drawText("Turn slowly on the spot", cx, cy + r * 0.62f, text) }
+        if (vals.isEmpty()) { text.textSize = sp(12f); text.color = muted; canvas.drawText(L.t("Turn slowly on the spot", "請在原地慢慢轉圈"), cx, cy + r * 0.62f, text) }
     }
 }

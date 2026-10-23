@@ -76,8 +76,8 @@ class WifiScanner(
     /** @return an error message, or null when the radar has started. */
     @SuppressLint("MissingPermission")
     fun start(durationMs: Long, useRtt: Boolean, pathLossN: Double, fast: Boolean = false): String? {
-        val w = wifi() ?: return "This device has no Wi-Fi."
-        if (!w.isWifiEnabled) return "Wi-Fi is off. Turn it on in Android settings, then try again."
+        val w = wifi() ?: return L.t("This device has no Wi-Fi.", "此裝置沒有 Wi-Fi。")
+        if (!w.isWifiEnabled) return L.t("Wi-Fi is off. Turn it on in Android settings, then try again.", "Wi-Fi 未開啟。請先在 Android 設定開啟再試一次。")
         stop()
         scanEveryMs = if (fast) 6_000L else 30_000L; harvestEveryMs = if (fast) 2_000L else 4_000L
         aps.clear(); lastError = null; n = pathLossN; rttEnabled = useRtt; rttAvailable = null; rttBusy = false
@@ -87,7 +87,7 @@ class WifiScanner(
         val f = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         if (Build.VERSION.SDK_INT >= 33) ctx.registerReceiver(receiver, f, Context.RECEIVER_NOT_EXPORTED) else ctx.registerReceiver(receiver, f)
         receiverRegistered = true
-        try { harvest(w); requestScan(w) } catch (e: SecurityException) { stop(); return "Wi-Fi scan permission is missing." }
+        try { harvest(w); requestScan(w) } catch (e: SecurityException) { stop(); return L.t("Wi-Fi scan permission is missing.", "缺少 Wi-Fi 掃描權限。") }
         handler.postDelayed(tick, 1000)
         return null
     }
@@ -110,13 +110,13 @@ class WifiScanner(
         override fun run() {
             if (!scanning) return
             val now = SystemClock.uptimeMillis()
-            if (now >= endAt) { stop(); onFinished("Scan complete"); return }
+            if (now >= endAt) { stop(); onFinished(L.t("Scan complete", "掃描完成")); return }
             val w = wifi()
             if (w != null) try {
                 if (now - lastScanReq >= scanEveryMs) requestScan(w)
                 if (now - lastHarvest >= harvestEveryMs) harvest(w)
                 if (rttEnabled && now - lastRange >= 3_000L) range(w)
-            } catch (_: SecurityException) { lastError = "Wi-Fi permission was revoked" }
+            } catch (_: SecurityException) { lastError = L.t("Wi-Fi permission was revoked", "Wi-Fi 權限已被撤銷") }
             onChange(); handler.postDelayed(this, 1000)
         }
     }
@@ -156,7 +156,7 @@ class WifiScanner(
         rttBusy = true
         try {
             mgr.startRanging(RangingRequest.Builder().addAccessPoints(cands).build(), ctx.mainExecutor, object : RangingResultCallback() {
-                override fun onRangingFailure(code: Int) { rttBusy = false; lastError = "Wi-Fi RTT ranging failed (code $code)"; onChange() }
+                override fun onRangingFailure(code: Int) { rttBusy = false; lastError = L.t("Wi-Fi RTT ranging failed (code $code)", "Wi-Fi RTT 測距失敗（代碼 $code）"); onChange() }
                 override fun onRangingResults(results: MutableList<RangingResult>) {
                     rttBusy = false
                     val now = SystemClock.uptimeMillis()
@@ -169,7 +169,7 @@ class WifiScanner(
                     onChange()
                 }
             })
-        } catch (e: SecurityException) { rttBusy = false; lastError = "Wi-Fi RTT permission missing" }
+        } catch (e: SecurityException) { rttBusy = false; lastError = L.t("Wi-Fi RTT permission missing", "缺少 Wi-Fi RTT 權限") }
     }
 
     private fun security(c: String) = when {
@@ -194,12 +194,13 @@ class WifiScanner(
     /** "Last updated: Wi-Fi data 12 s ago · next scan in ≈ 8 s" while scanning, else "". Data age = age of the newest scan result, not of the last cache read. */
     fun updatedText(): String {
         if (!scanning) return ""
-        val data = if (newestTsUs == 0L) "no data yet" else "${max(0L, (SystemClock.elapsedRealtime() * 1000 - newestTsUs) / 1_000_000L)} s ago"
+        val data = if (newestTsUs == 0L) L.t("no data yet", "尚無資料") else {
+            val s = max(0L, (SystemClock.elapsedRealtime() * 1000 - newestTsUs) / 1_000_000L); L.t("$s s ago", "$s 秒前") }
         val next = max(0L, (lastScanReq + scanEveryMs - SystemClock.uptimeMillis()) / 1000)
-        return "Last updated: Wi-Fi data $data · next scan in ≈ $next s" +
-            (if (scansThrottled > 0) " (Android throttled $scansThrottled)" else "") +
-            (if (scanEveryMs < 30_000L && scansThrottled >= 3) " · turn OFF Developer option 'Wi-Fi scan throttling' for fast scan" else "") +
-            (if (rttEnabled && rttAvailable == true) " · RTT every 3 s" else "")
+        return L.t("Last updated: Wi-Fi data $data · next scan in ≈ $next s", "最後更新：Wi-Fi 資料 $data · 約 $next 秒後下次掃描") +
+            (if (scansThrottled > 0) L.t(" (Android throttled $scansThrottled)", "（Android 限流 $scansThrottled 次）") else "") +
+            (if (scanEveryMs < 30_000L && scansThrottled >= 3) L.t(" · turn OFF Developer option 'Wi-Fi scan throttling' for fast scan", " · 快速掃描需關閉開發者選項「Wi-Fi 掃描調節」") else "") +
+            (if (rttEnabled && rttAvailable == true) L.t(" · RTT every 3 s", " · RTT 每 3 秒") else "")
     }
 
     /** 0 = just seen .. 1 = about to be dropped from the list (used to fade radar blips). */
@@ -213,7 +214,7 @@ class WifiScanner(
     fun summary(): String {
         val all = aps.values
         val nearest = all.mapNotNull { distanceM(it) }.minOrNull()
-        return "APs ${all.size} · 2.4G ${all.count { it.band() == 24 }} · 5/6G ${all.count { it.band() != 24 }} · 802.11mc ${all.count { it.mc }} · RTT ${all.count { isMeasured(it) }}" +
-            (nearest?.let { " · nearest ≈ " + String.format(java.util.Locale.US, "%.1f m", it) } ?: "")
+        return L.t("APs ${all.size} · 2.4G ${all.count { it.band() == 24 }} · 5/6G ${all.count { it.band() != 24 }} · 802.11mc ${all.count { it.mc }} · RTT ${all.count { isMeasured(it) }}", "基地台 ${all.size} · 2.4G ${all.count { it.band() == 24 }} · 5/6G ${all.count { it.band() != 24 }} · 802.11mc ${all.count { it.mc }} · RTT ${all.count { isMeasured(it) }}") +
+            (nearest?.let { L.t(" · nearest ≈ ", " · 最近 ≈ ") + String.format(java.util.Locale.US, "%.1f m", it) } ?: "")
     }
 }
