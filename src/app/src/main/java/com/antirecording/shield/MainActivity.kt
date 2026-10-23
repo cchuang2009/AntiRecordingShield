@@ -459,6 +459,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var finderView: FinderView
     private lateinit var finderStatus: TextView
     private lateinit var finderStop: Button
+    private lateinit var cbSortBt: CheckBox
+    private lateinit var cbSortWifi: CheckBox
+    private val btNums = HashMap<String, Int>()      // device address -> list/radar number (stable during one scan)
+    private val wifiNums = HashMap<String, Int>()    // radio cluster key -> list/radar number
     private lateinit var roomStatus: TextView
     private lateinit var roomResult: TextView
     private lateinit var roomStart: Button
@@ -585,12 +589,15 @@ class MainActivity : ComponentActivity() {
         wifiList = label("", 11f, white).apply { typeface = Typeface.MONOSPACE }
         c.addView(wifiList)
         c.addView(Button(this).apply { text = L.t("Mark a network as known…", "標記為已知網路…"); setOnClickListener { pickKnownWifi() } })
+        cbSortWifi = CheckBox(this).apply { text = L.t("Sort list by # (default: nearest first)", "依編號排序（預設：由近到遠）"); isChecked = false; setTextColor(white); setOnCheckedChangeListener { _, _ -> refreshWifiRadar() } }
+        c.addView(cbSortWifi)
         addGap(c, 6)
         c.addView(label(L.t("Shows Wi-Fi access points and hotspots in range, not every phone or camera connected to them (Android cannot list other clients). ✓ = measured by Wi-Fi RTT (802.11mc access points only, on phones with RTT hardware, Wi-Fi on; Location on for Android 12 and below). ~ = estimated from signal strength, rough. Android limits foreground Wi-Fi scans to about 4 per 2 minutes, so the plot refreshes about every 30 s in Normal mode. Direction is arbitrary. Range only changes how the plot is scaled, not how far the radio hears; beyond about 15 m an RSSI distance is a very rough band. A nearby access point is not evidence of recording.", "顯示範圍內的 Wi-Fi 基地台與熱點，不是連到它們的每支手機或攝影機（Android 無法列出其他用戶端）。✓ = 以 Wi-Fi RTT 實測（僅限 802.11mc 基地台、具 RTT 硬體的手機、Wi-Fi 開啟；Android 12 以下需開啟定位）。~ = 依訊號強度估計，很粗略。Android 限制前景 Wi-Fi 掃描約每 2 分鐘 4 次，所以一般模式下圖約每 30 秒更新一次。方向是任意的。範圍只改變圖的縮放，不改變無線電能收到多遠；超過約 15 m 的 RSSI 距離只是很粗略的範圍。附近有基地台不代表正在錄音。"), 10f, muted))
         parent.addView(c)
     }
 
     private fun startWifiRadar() {
+        wifiNums.clear()
         val err = wifiScanner.start(60_000L, cbRtt.isChecked, envN[envIdx], cbFast.isChecked)
         if (err != null) { wifiStatus.text = err; addHistory("WIFI_RADAR", err); return }
         wifiRadar.setScanning(true); wifiRadar.setBlips(emptyList())
@@ -630,13 +637,13 @@ class MainActivity : ComponentActivity() {
         wifiRadar.setBlips(clusters.mapNotNull { group ->
             val key = clusterKey(group)
             val best = group.minByOrNull { wifiScanner.distanceM(it) ?: Double.MAX_VALUE } ?: return@mapNotNull null
-            wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (group.any { suspectAp(it) != null }) 5 else if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best)) }
+            wifiScanner.distanceM(best)?.let { RadarView.Blip(key, angleOf(key), it, if (group.any { suspectAp(it) != null }) 5 else if (best.band() == 24) 3 else 4, wifiScanner.isMeasured(best), wifiScanner.ageFrac(best), numOf(wifiNums, key)) }
         })
         wifiAge.text = wifiScanner.updatedText()
         updateAlert(wifiAlert, list.filter { suspectAp(it) != null }.map { "${it.ssid} ${it.bssid}" })
         if (wifiScanner.scanning) wifiStatus.text = "Scanning… ${wifiScanner.remainingSec()} s · ${wifiScanner.summary()} · ${L.t("radios", "無線電")} ${clusters.size}" + (wifiScanner.lastError?.let { " · $it" } ?: "")
         val groups = clusters.sortedByDescending { g -> g.any { suspectAp(it) != null } }       // nearest first; same radio = same BSSID except last byte + channel
-        wifiList.text = if (list.isEmpty()) "" else redizeLines(groups.take(15).joinToString("\n") { g ->
+        wifiList.text = if (list.isEmpty()) "" else redizeLines((if (::cbSortWifi.isInitialized && cbSortWifi.isChecked) groups.sortedBy { numOf(wifiNums, clusterKey(it)) } else groups).take(30).joinToString("\n") { g ->
             val a = g[0]
             val hit = g.firstOrNull { suspectAp(it) != null }
             val band = when (a.band()) { 24 -> "2.4G"; 5 -> "5G  "; else -> "6G  " }
@@ -645,7 +652,7 @@ class MainActivity : ComponentActivity() {
             val dist = if (d == null) "   ?   " else if (d > rangeM[rangeIdx]) " >${rangeM[rangeIdx].toInt()} m " else (if (m) " " else "~") + String.format(Locale.US, "%4.1f m", d)
             val rssi = if (a.hasRssi()) "${a.rssi()} dBm" else "-- dBm"
             val extra = listOfNotNull(a.security, if (a.mc) "802.11mc" else null, if (m) String.format(Locale.US, "RTT %.1f±%.1f m", a.rttM, a.rttStdM ?: 0.0) else null).joinToString("  ")
-            "${if (hit != null) "⚠ " else ""}$band ch${a.channel().toString().padEnd(3)} $dist${if (m) "✓" else " "} ${rssi.padStart(8)}  ${a.ssid.ifBlank { "<hidden>" }}\n          ${a.bssid}  $extra" + (if (g.size > 1) L.t("\n          +${g.size - 1} more on this radio: ", "\n          同一無線電另有 ${g.size - 1} 個：") + g.drop(1).joinToString(", ") { it.ssid.ifBlank { "<hidden>" } } else "") +
+            "${if (hit != null) "⚠ " else ""}${"#${numOf(wifiNums, clusterKey(g))}".padEnd(4)}$band ch${a.channel().toString().padEnd(3)} $dist${if (m) "✓" else " "} ${rssi.padStart(8)}  ${a.ssid.ifBlank { "<hidden>" }}\n          ${a.bssid}  $extra" + (if (g.size > 1) L.t("\n          +${g.size - 1} more on this radio: ", "\n          同一無線電另有 ${g.size - 1} 個：") + g.drop(1).joinToString(", ") { it.ssid.ifBlank { "<hidden>" } } else "") +
                 (if (hit != null) L.t("\n          ⚠ looks like a camera/recorder: ${suspectAp(hit)} (${hit.ssid})", "\n          ⚠ 疑似攝影機／錄音器：${suspectAp(hit)}（${hit.ssid}）") else "")
         })
     }
@@ -690,6 +697,8 @@ class MainActivity : ComponentActivity() {
         radarList = label("", 11f, white).apply { typeface = Typeface.MONOSPACE }
         c.addView(radarList)
         c.addView(Button(this).apply { text = L.t("Mark a device as known…", "標記為已知裝置…"); setOnClickListener { pickKnownBt() } })
+        cbSortBt = CheckBox(this).apply { text = L.t("Sort list by # (default: nearest first)", "依編號排序（預設：由近到遠）"); isChecked = false; setTextColor(white); setOnCheckedChangeListener { _, _ -> refreshRadar() } }
+        c.addView(cbSortBt)
         addGap(c, 14)
         c.addView(label(L.t("DIRECTION FINDER  •  BLE", "找方向  •  BLE"), 12f, cyan, true))
         c.addView(label(L.t("Pick a Bluetooth device, hold the phone flat in front of you (top edge pointing forward) and turn slowly on the spot for about 20 s. The arrow then shows where its signal is strongest. Your body blocks the signal, so the peak is when you FACE the device. Accuracy is roughly ±30–45°, worse near walls.", "選一個藍牙裝置，手機平放在胸前（頂端朝前），在原地慢慢轉一圈約 20 秒。箭頭會指出訊號最強的方向。人體會擋住訊號，所以面向裝置時訊號最強。準確度約 ±30–45°，靠近牆壁時更差。"), 11f, muted))
@@ -781,7 +790,7 @@ class MainActivity : ComponentActivity() {
         lanStatus.text = (err ?: L.t("LAN scan finished.", "區網掃描完成。")) + " " +
             L.t("${hits.size} camera-like device(s), ${hosts.size} hosts with open ports.", "${hits.size} 個疑似攝影機的裝置，${hosts.size} 台主機有開啟連接埠。")
         val sb = StringBuilder()
-        for (h in hits) sb.append("⚠ ").append(h.ip).append("  (").append(L.t("ports ", "連接埠 ")).append(h.ports.joinToString(",")).append(")\n      ").append(h.reasons.joinToString("; ")).append("\n")
+        for ((i, h) in hits.withIndex()) sb.append("⚠ ${i + 1}. ").append(h.ip).append("  (").append(L.t("ports ", "連接埠 ")).append(h.ports.joinToString(",")).append(")\n      ").append(h.reasons.joinToString("; ")).append("\n")
         val others = hosts.filter { it.score < 2 }
         if (others.isNotEmpty()) { sb.append("\n").append(L.t("Other hosts with open ports:", "其他有開啟連接埠的主機：")); for (h in others) sb.append("\n• ${h.ip}  ${h.ports.joinToString(",")}") }
         lanResult.text = redizeLines(sb.toString())
@@ -934,6 +943,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startRadar() {
+        btNums.clear()
         if (!cbBle.isChecked && !cbClassic.isChecked) { Toast.makeText(this, L.t("Select BLE and/or Classic", "請選擇 BLE 和／或傳統藍牙"), Toast.LENGTH_SHORT).show(); return }
         val err = scanner.start(if (cbBle.isChecked && cbClassic.isChecked) 48_000L else 30_000L, cbBle.isChecked, cbClassic.isChecked, envN[envIdx])
         if (err != null) { radarStatus.text = err; addHistory("BT_RADAR", err); return }
@@ -1031,22 +1041,25 @@ class MainActivity : ComponentActivity() {
         return ((h and 0x7fffffff) % 360).toFloat()
     }
 
+    /** Number of a device: given on first sight, never changes during a scan, so '#7' on the radar is row '#7' in the list. */
+    private fun numOf(m: HashMap<String, Int>, id: String): Int = m.getOrPut(id) { m.size + 1 }
+
     private fun refreshRadar() {
         if (!::radar.isInitialized) return
         val list = scanner.list(6).sortedByDescending { suspectOf(it) != null }    // at most 6 anonymous random-address LE devices (mostly Apple); named / Classic devices always shown
         radar.setBlips(list.mapNotNull { d ->
-            scanner.distanceM(d)?.let { RadarView.Blip(d.address, angleOf(d.address), it, if (suspectOf(d) != null) 5 else if (d.le && d.classic) 2 else if (d.classic) 1 else 0, false, scanner.ageFrac(d)) }
+            scanner.distanceM(d)?.let { RadarView.Blip(d.address, angleOf(d.address), it, if (suspectOf(d) != null) 5 else if (d.le && d.classic) 2 else if (d.classic) 1 else 0, false, scanner.ageFrac(d), numOf(btNums, d.address)) }
         })
         radarAge.text = scanner.updatedText()
         updateAlert(radarAlert, list.filter { suspectOf(it) != null }.map { "${it.name} ${it.address}" })
         if (scanner.scanning) radarStatus.text = "Scanning (${scanner.phase()})… ${scanner.remainingSec()} s · ${scanner.summary()}\n${scanner.raw()}" + (if (scanner.hiddenAnon > 0) L.t("\n+${scanner.hiddenAnon} anonymous random-address devices not listed", "\n另有 ${scanner.hiddenAnon} 個匿名隨機位址裝置未列出") else "") + (scanner.lastError?.let { "\n$it" } ?: "")
-        radarList.text = if (list.isEmpty()) "" else redizeLines(list.take(15).joinToString("\n") { d ->
+        radarList.text = if (list.isEmpty()) "" else redizeLines((if (::cbSortBt.isInitialized && cbSortBt.isChecked) list.sortedBy { numOf(btNums, it.address) } else list).take(30).joinToString("\n") { d ->
             val sus = suspectOf(d) != null
             val kind = if (d.le && d.classic) "LE+BR" else if (d.le) "LE   " else "BR   "
             val dist = scanner.distanceM(d)?.let { if (it > rangeM[rangeIdx]) ">${rangeM[rangeIdx].toInt()} m " else String.format(Locale.US, "%4.1f m", it) } ?: "  ?   "
             val rssi = if (d.hasRssi()) "${d.rssi()} dBm" else "-- dBm"
             val extra = listOfNotNull(d.vendor, d.cls).joinToString("/")
-            "${if (sus) "⚠ " else ""}$kind $dist ${rssi.padStart(8)}  ${d.name ?: "Unknown"}${knownLabel(d.address)}\n         ${d.address}${if (extra.isNotEmpty()) "  ($extra)" else ""}${if (sus) L.t("\n         ⚠ looks like a camera/recorder: ${suspectOf(d)}", "\n         ⚠ 疑似攝影機／錄音器：${suspectOf(d)}") else ""}"
+            "${if (sus) "⚠ " else ""}${"#${numOf(btNums, d.address)}".padEnd(4)}$kind $dist ${rssi.padStart(8)}  ${d.name ?: "Unknown"}${knownLabel(d.address)}\n         ${d.address}${if (extra.isNotEmpty()) "  ($extra)" else ""}${if (sus) L.t("\n         ⚠ looks like a camera/recorder: ${suspectOf(d)}", "\n         ⚠ 疑似攝影機／錄音器：${suspectOf(d)}") else ""}"
         })
     }
 
@@ -1103,7 +1116,7 @@ class MainActivity : ComponentActivity() {
                 val row = "WIFI|${r.SSID.ifBlank { "<hidden SSID>" }}|${r.BSSID ?: "unknown"}|${r.frequency}MHz|RSSI ${r.level}dBm"
                 currentSnapshot.add(row)
             }
-            deviceOutput.text = L.t("Visible Wi-Fi networks: ${results.size}\n", "可見的 Wi-Fi 網路：${results.size}\n") + results.take(30).joinToString("\n") { "• ${it.SSID.ifBlank { "<hidden>" }}  ${it.BSSID ?: ""}  ${it.level} dBm  ${it.frequency} MHz" }
+            deviceOutput.text = L.t("Visible Wi-Fi networks: ${results.size}\n", "可見的 Wi-Fi 網路：${results.size}\n") + results.take(30).withIndex().joinToString("\n") { (i, r) -> "${(i + 1).toString().padStart(2)}. ${r.SSID.ifBlank { "<hidden>" }}  ${r.BSSID ?: ""}  ${r.level} dBm  ${r.frequency} MHz" }
             addHistory("WIFI_SCAN", "${results.size} visible networks; startScan=$started")
         } catch (e: SecurityException) {
             deviceOutput.text = L.t("Wi-Fi scan permission unavailable. Grant the permission in Android settings (App info → Permissions) and try again.", "無法使用 Wi-Fi 掃描權限。請到 Android 設定（應用程式資訊 → 權限）允許後再試一次。")
@@ -1127,7 +1140,7 @@ class MainActivity : ComponentActivity() {
                 return
             }
             bonded.forEach { d -> currentSnapshot.add("BT_PAIRED|${d.name ?: "Unknown"}|${d.address}") }
-            deviceOutput.text = L.t("Paired Bluetooth devices: ${bonded.size}\n", "已配對的藍牙裝置：${bonded.size}\n") + bonded.joinToString("\n") { "• ${it.name ?: "Unknown"}  ${it.address}" } + L.t("\n\nNote: paired devices are not the same as all nearby devices.", "\n\n注意：已配對裝置不等於所有附近裝置。")
+            deviceOutput.text = L.t("Paired Bluetooth devices: ${bonded.size}\n", "已配對的藍牙裝置：${bonded.size}\n") + bonded.withIndex().joinToString("\n") { (i, b) -> "${(i + 1).toString().padStart(2)}. ${b.name ?: "Unknown"}  ${b.address}" } + L.t("\n\nNote: paired devices are not the same as all nearby devices.", "\n\n注意：已配對裝置不等於所有附近裝置。")
             addHistory("BT_SCAN", "${bonded.size} paired devices listed")
         } catch (e: SecurityException) {
             deviceOutput.text = L.t("Bluetooth permission unavailable. Grant the Nearby devices permission in Android settings and try again.", "無法使用藍牙權限。請在 Android 設定允許「附近裝置」權限後再試一次。")

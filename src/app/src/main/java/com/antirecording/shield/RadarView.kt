@@ -20,7 +20,7 @@ import kotlin.math.*
  */
 class RadarView(context: Context) : View(context) {
     /** type: 0 BLE, 1 Classic, 2 both, 3 Wi-Fi 2.4 GHz, 4 Wi-Fi 5/6 GHz, 5 SUSPICIOUS (red).  measured = real ranging (Wi-Fi RTT).  ageFrac: 0 fresh .. 1 stale. */
-    class Blip(val id: String, val angleDeg: Float, val distM: Double, val type: Int, val measured: Boolean = false, val ageFrac: Float = 0f)
+    class Blip(val id: String, val angleDeg: Float, val distM: Double, val type: Int, val measured: Boolean = false, val ageFrac: Float = 0f, val num: Int = 0)
     /** false = Bluetooth legend, true = Wi-Fi legend */
     var wifiMode = false
 
@@ -122,7 +122,7 @@ class RadarView(context: Context) : View(context) {
         val dt = if (lastFrame == 0L) 16L else (now - lastFrame).coerceIn(1L, 100L); lastFrame = now
         val k = 1.0 - exp(-dt / 250.0)                       // ~250 ms glide toward the newest distance
         val sorted = blips.sortedWith(compareBy({ it.type != 5 }, { it.distM }))   // suspicious first so they get a label
-        val used = ArrayList<RectF>(); var labels = 0
+        val used = ArrayList<RectF>(); var labels = 0; var tags = 0
         sorted.forEachIndexed { idx, b ->
             val cur = shown[b.id] ?: b.distM
             val dd = if (scanning) cur + (b.distM - cur) * k else b.distM
@@ -150,15 +150,27 @@ class RadarView(context: Context) : View(context) {
                 canvas.drawCircle(x, y, dp(8f) + ph * dp(10f), paint)
             }
             if (b.measured) { paint.style = Paint.Style.STROKE; paint.strokeWidth = dp(1.6f); paint.color = Color.WHITE; canvas.drawCircle(x, y, dp(8f), paint) }
+            var tagged = false
             if (labels < maxLabels && fade > 0.35f) {
-                val label = (if (b.type == 5) "⚠ " else "") + (if (far) ">${maxM.toInt()} m" else (if (b.measured) "" else "~") + fmt(dd) + (if (b.measured) " ✓" else ""))
+                val label = (if (b.type == 5) "⚠ " else "") + (if (b.num > 0) "#${b.num} " else "") + (if (far) ">${maxM.toInt()} m" else (if (b.measured) "" else "~") + fmt(dd) + (if (b.measured) " ✓" else ""))
                 text.textSize = sp(9f)
                 val w = text.measureText(label) / 2f + dp(2f)
                 val box = RectF(x - w, y - dp(11f) - sp(9f), x + w, y - dp(11f) + dp(2f))
                 if (used.none { RectF.intersects(it, box) }) {
-                    used.add(box); labels++
+                    used.add(box); labels++; tagged = true
                     text.color = Color.argb((230 * fade).toInt(), 241, 247, 255)
                     canvas.drawText(label, x, y - dp(11f), text)
+                }
+            }
+            if (!tagged && b.num > 0 && fade > 0.35f && tags < 24) {      // blips without a distance label still show their list number
+                text.textSize = sp(8f)
+                val tag = "#${b.num}"
+                val tw = text.measureText(tag) / 2f + dp(2f)
+                val tb = RectF(x - tw, y - dp(9f) - sp(8f), x + tw, y - dp(9f) + dp(2f))
+                if (used.none { RectF.intersects(it, tb) }) {
+                    used.add(tb); tags++
+                    text.color = Color.argb((200 * fade).toInt(), 190, 210, 235)
+                    canvas.drawText(tag, x, y - dp(9f), text)
                 }
             }
         }

@@ -1,3 +1,7 @@
+# v1.2.1 (on top of 1.2.0)
+RadarView.Blip.num + '#n' labels/tags on blips (labels no longer overlap: numbers drawn for up to 24 blips). MainActivity: stable btNums/wifiNums (reset on scan start), '#n' in list rows, lists up to 30 rows, sort-by-number checkboxes, numbered one-off scan lists and LAN hits. Bilingual 1.2.1 entry.
+NOT compiled or run on a device.
+
 # v1.2.0 (on top of 1.1.10) - roadmap items 1-7
 NEW files: RoomCheck.kt (orchestrator + ReportPdf), LanScanner.kt, LensFinder.kt, OuiDb.kt, RadioCluster.kt, Beeper.kt, Pro.kt, PlayBilling.kt.txt (disabled), MANIFEST_ADDITIONS.md
 MainActivity: 5th tab 'Room check' (scrollable tab row), mark-as-known buttons, known-aware suspect checks (name OR camera-maker prefix), proximity beeps, cluster code moved to RadioCluster.

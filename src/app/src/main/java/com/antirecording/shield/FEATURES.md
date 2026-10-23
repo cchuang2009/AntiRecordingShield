@@ -3,6 +3,18 @@
 > Rule: every new version adds a bilingual (English + 中文) entry at the top, here and in `FeatureNotes.kt`.
 > 規則：每個新版本都要在此檔與 `FeatureNotes.kt` 最上方新增英中對照說明。
 
+## v1.2.1
+
+**English**
+- Numbered rows: every device in the Bluetooth and Wi-Fi radar lists now has a number (#1, #2 ...), and the same number is printed next to its dot on the radar, so a dot and its list row are easy to match.
+- Numbers stay the same during a scan (they are given when a device is first seen and reset when you start a new scan). The lists now show up to 30 rows, and a checkbox under each list switches between nearest-first and sorted by number.
+- The one-off 'Scan Wi-Fi', 'Paired Bluetooth' and LAN scan lists are numbered 1, 2, 3 ... as well.
+
+**中文**
+- 編號列：藍牙與 Wi-Fi 雷達清單中的每個裝置現在都有編號（#1、#2…），雷達上的圖點旁也標示相同編號，圖點與清單列很容易對照。
+- 掃描期間編號不會變動（裝置第一次出現時給號，重新開始掃描時重編）。清單最多顯示 30 列，每個清單下方有勾選框，可在「由近到遠」與「依編號排序」之間切換。
+- 一次性的「掃描 Wi-Fi」、「已配對藍牙」與區網掃描清單也依 1、2、3… 編號。
+
 ## v1.2.0
 
 **English**
